@@ -1,0 +1,116 @@
+/* RegisterPage.css */
+
+.register-page-container {
+    position: relative;
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--bg-color);
+    /* Mint Green */
+}
+
+.register-content-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    width: auto;
+    height: auto;
+}
+
+.register-card-panel {
+    background: #FFFFFF;
+    width: 493px;
+    height: 645px;
+    border-radius: 40px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    padding: 3rem 4rem;
+    position: relative;
+    z-index: 10;
+    /* Card is on top of background assets */
+    display: flex;
+    flex-direction: column;
+}
+
+/* -- ASSETS ALIGNMENT -- */
+
+/* 1. Character */
+.decor-character {
+    position: absolute;
+    right: 100%;
+    margin-right: -50px;
+    bottom: -40px;
+    height: 550px;
+    z-index: 20;
+    /* Character stays ON TOP of card/everything */
+    pointer-events: none;
+}
+
+/* 2. Top Left Plant */
+.decor-top-left {
+    position: absolute;
+    /* "positioned to the right side leaf but to the top left corner" */
+    /* Interpretation: Behind the card (like the right leaf) at the top left corner */
+
+    right: 50%;
+    top: 50%;
+    width: 180px;
+    margin-left: -50px;
+    z-index: 5;
+    /* BEHIND the card (Card is z-10) */
+    pointer-events: none;
+}
+
+/* 3. Right Side Leaf */
+.decor-right-side {
+    position: absolute;
+    left: 100%;
+    top: 40%;
+    width: 120px;
+    /* "slightly move the right side leaf to the right" */
+    /* Previous was -50px margin. Now "to the right" means less negative margin (closer to 100%) or positive margin */
+    /* Let's try -20px margin-left (moved right by 30px) */
+    margin-left: -30px;
+    /* "send it to the back of the centre panel" */
+    z-index: 5;
+    /* BEHIND the card */
+    pointer-events: none;
+}
+
+/* 4. Bottom Right Plant */
+.decor-bottom-right {
+    position: absolute;
+    bottom: -20px;
+    right: -20px;
+    width: 120px;
+    z-index: 15;
+    /* Corners usually on top? Or match others? Let's keep on top for depth unless asked */
+    pointer-events: none;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 1100px) {
+    .decor-character {
+        right: auto;
+        left: -150px;
+        height: 400px;
+        bottom: -20px;
+    }
+}
+
+@media (max-width: 900px) {
+    .register-card-panel {
+        width: 90%;
+        height: auto;
+        padding: 2rem;
+    }
+
+    .decor-character,
+    .decor-top-left,
+    .decor-right-side {
+        display: none;
+    }
+}

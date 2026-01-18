@@ -1,0 +1,88 @@
+/* RegisterForm.css */
+.register-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.register-header {
+    margin-bottom: 2rem;
+    text-align: left;
+}
+
+.register-title {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: #000;
+    margin-bottom: 0.5rem;
+}
+
+/* Input Fields - Larger as requested */
+.form-group {
+    margin-bottom: 1.2rem;
+}
+
+.input-with-icon {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-icon {
+    position: absolute;
+    left: 1.2rem;
+    color: #90A4AE;
+    width: 24px;
+    /* Larger icon */
+    height: 24px;
+    pointer-events: none;
+}
+
+.form-input.has-icon {
+    padding-left: 3.5rem;
+    /* More space */
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    font-size: 1.1rem;
+    /* Larger text */
+    background: #F8FAFC;
+    /* Slight tint? or White */
+    border: 1px solid #E2E8F0;
+    border-radius: 12px;
+    /* Softer radius */
+}
+
+.btn-register {
+    width: 100%;
+    padding: 1rem;
+    /* Larger button */
+    background-color: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(29, 140, 248, 0.3);
+    margin-top: 1rem;
+}
+
+.btn-register:hover {
+    background-color: var(--primary-hover);
+    transform: translateY(-2px);
+}
+
+.signin-link {
+    text-align: center;
+    margin-top: 1.5rem;
+    font-size: 1rem;
+    color: var(--text-secondary);
+}
+
+.signin-link a {
+    color: #1D8CF8;
+    /* Blue link */
+    font-weight: 700;
+}
