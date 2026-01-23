@@ -1,10 +1,28 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Button from '../Button/Button';
 import './LoginForm.css';
 import LogoIcon from '../../assets/Logo.svg';
 
 const LoginForm = () => {
+    const navigate = useNavigate();
+    const handleLogin = (e) => {
+        e.preventDefault();
+        // Simulate login logic: determine role based on email content
+        const email = e.target.elements.email.value.toLowerCase();
+        let role = 'volunteer'; // Default role
+
+        if (email.includes('ngo')) {
+            role = 'ngo';
+        } else if (email.includes('admin')) {
+            role = 'admin';
+        }
+
+        // Save role to localStorage so Dashboard can pick it up
+        localStorage.setItem('userRole', role);
+        navigate('/dashboard');
+    };
+
     return (
         <div className="login-container">
             <div className="login-header">
@@ -17,7 +35,8 @@ const LoginForm = () => {
                 </div>
             </div>
 
-            <form className="login-form" onSubmit={(e) => e.preventDefault()}>
+            <form className="login-form" onSubmit={handleLogin}>
+
                 <div className="form-group">
                     <label htmlFor="email">Username or Email</label>
                     <input
@@ -37,12 +56,12 @@ const LoginForm = () => {
                         className="form-input"
                     />
                     <div className="forgot-password">
-                        <a href="#">Forgot password?</a>
+                        <a href="/forgot-password">Forgot password?</a>
                     </div>
                 </div>
 
                 <div className="form-actions">
-                    <button className="btn-login">
+                    <button className="btn-login" type="submit">
                         Log In
                     </button>
                 </div>

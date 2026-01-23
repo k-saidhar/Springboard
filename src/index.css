@@ -27,9 +27,9 @@ body {
   background-color: var(--bg-color);
   color: var(--text-main);
   min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  /* display: flex; REMOVED to allow Dashboard full layout */
+  /* align-items: center; REMOVED */
+  /* justify-content: center; REMOVED */
 }
 
 * {

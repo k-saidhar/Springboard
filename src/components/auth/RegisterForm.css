@@ -19,7 +19,7 @@
     margin-bottom: 0.5rem;
 }
 
-/* Input Fields - Larger as requested */
+
 .form-group {
     margin-bottom: 1.2rem;
 }
@@ -45,7 +45,7 @@
     /* More space */
     padding-top: 1rem;
     padding-bottom: 1rem;
-    font-size: 1.1rem;
+    font-size: 1.05rem;
     /* Larger text */
     background: #F8FAFC;
     /* Slight tint? or White */
