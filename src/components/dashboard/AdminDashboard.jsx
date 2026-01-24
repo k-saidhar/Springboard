@@ -1,6 +1,8 @@
 import React from 'react';
 import './Dashboard.css';
 
+import { Link } from 'react-router-dom';
+
 const AdminDashboard = () => {
     return (
         <div className="dashboard-container">
@@ -15,6 +17,7 @@ const AdminDashboard = () => {
                     <span className="nav-item">NGOs</span>
                     <span className="nav-item">Reports</span>
                     <span className="nav-item">Settings</span>
+                    <Link to="/contact" className="nav-item" style={{ textDecoration: 'none' }}>Contact</Link>
                 </div>
                 <div className="nav-profile">
                     <a href='/'>Logout</a>

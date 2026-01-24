@@ -1,6 +1,8 @@
 import React from 'react';
 import './Dashboard.css';
 
+import { Link } from 'react-router-dom';
+
 const NGODashboard = () => {
     return (
         <div className="dashboard-container">
@@ -15,6 +17,7 @@ const NGODashboard = () => {
                     <span className="nav-item">Volunteers</span>
                     <span className="nav-item">Messages</span>
                     <span className="nav-item">Profile</span>
+                    <Link to="/contact" className="nav-item" style={{ textDecoration: 'none' }}>Contact</Link>
                 </div>
                 <div className="nav-profile">
                     <a href='/'>Logout</a>
