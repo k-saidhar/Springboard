@@ -1,0 +1,185 @@
+import React, { useState, useEffect } from 'react';
+import storageService from '../../services/storageService';
+import { useNavigate, useParams, Link } from 'react-router-dom';
+import '../layout/RegisterPage.css'; // Reuse RegisterPage layout styles
+import '../auth/RegisterForm.css';   // Reuse Form styles
+
+// Assets
+import TopLeftPlant from '../../assets/Top left plant.svg';
+import RightSideLeaf from '../../assets/Right side leaf.svg';
+import BottomRightPlant from '../../assets/Bottom right.svg';
+
+// Icons
+import { FaCalendarAlt, FaClock, FaMapMarkerAlt, FaTools, FaFileAlt, FaPen } from 'react-icons/fa';
+
+const OpportunityForm = () => {
+    const { id } = useParams();
+    const navigate = useNavigate();
+    const [formData, setFormData] = useState({
+        title: '',
+        description: '',
+        skills: '',
+        duration: '',
+        location: '',
+        date: ''
+    });
+
+    useEffect(() => {
+        if (id) {
+            const opportunity = storageService.getOpportunityById(id);
+            if (opportunity) {
+                setFormData(opportunity);
+            }
+        }
+    }, [id]);
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({
+            ...prev,
+            [name]: value
+        }));
+    };
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        storageService.saveOpportunity(formData);
+        navigate('/dashboard');
+    };
+
+    return (
+        <div className="register-page-container">
+            {/* Background/Decor Assets */}
+            <img src={TopLeftPlant} alt="" className="decor-top-left" />
+            <img src={RightSideLeaf} alt="" className="decor-right-side" />
+
+            <div className="register-content-wrapper">
+                {/* Character Removed */}
+
+                {/* Reuse Register Card Panel */}
+                <div className="register-card-panel" style={{ minHeight: 'auto', width: '500px' }}>
+
+                    <div className="register-container">
+                        <div className="register-header">
+                            <h2 className="register-title">{id ? 'Edit Event' : 'New Event'}</h2>
+                            <p style={{ color: '#666', fontSize: '0.9rem' }}>Create meaningful volunteering opportunities.</p>
+                        </div>
+
+                        <form onSubmit={handleSubmit}>
+                            <div className="form-group">
+                                <div className="input-with-icon">
+                                    <FaPen className="input-icon" />
+                                    <input
+                                        type="text"
+                                        name="title"
+                                        className="form-input has-icon"
+                                        placeholder="Event Title"
+                                        value={formData.title}
+                                        onChange={handleChange}
+                                        style={{ width: '100%' }}
+                                        required
+                                    />
+                                </div>
+                            </div>
+
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                                <div className="form-group">
+                                    <div className="input-with-icon">
+                                        <FaCalendarAlt className="input-icon" />
+                                        <input
+                                            type="date"
+                                            name="date"
+                                            className="form-input has-icon"
+                                            value={formData.date}
+                                            onChange={handleChange}
+                                            style={{ width: '100%' }}
+                                            required
+                                        />
+                                    </div>
+                                </div>
+                                <div className="form-group">
+                                    <div className="input-with-icon">
+                                        <FaClock className="input-icon" />
+                                        <input
+                                            type="text"
+                                            name="duration"
+                                            className="form-input has-icon"
+                                            placeholder="Duration"
+                                            value={formData.duration}
+                                            onChange={handleChange}
+                                            style={{ width: '100%' }}
+                                            required
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="form-group">
+                                <div className="input-with-icon">
+                                    <FaMapMarkerAlt className="input-icon" />
+                                    <input
+                                        type="text"
+                                        name="location"
+                                        className="form-input has-icon"
+                                        placeholder="Location"
+                                        value={formData.location}
+                                        onChange={handleChange}
+                                        style={{ width: '100%' }}
+                                        required
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="form-group">
+                                <div className="input-with-icon">
+                                    <FaTools className="input-icon" />
+                                    <input
+                                        type="text"
+                                        name="skills"
+                                        className="form-input has-icon"
+                                        placeholder="Required Skills (e.g., Planting)"
+                                        value={formData.skills}
+                                        onChange={handleChange}
+                                        style={{ width: '100%' }}
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="form-group">
+                                <div className="input-with-icon">
+                                    <FaFileAlt className="input-icon" style={{ top: '15px' }} />
+                                    <textarea
+                                        name="description"
+                                        className="form-input has-icon"
+                                        placeholder="Event Description..."
+                                        rows="4"
+                                        value={formData.description}
+                                        onChange={handleChange}
+                                        style={{ width: '100%', resize: 'none' }}
+                                        required
+                                    />
+                                </div>
+                            </div>
+
+                            <button
+                                type="submit"
+                                className="btn-register"
+                                style={{ backgroundColor: '#FBC02D', marginTop: '0.5rem' }}
+                            >
+                                {id ? 'Update Event' : 'Create Event'}
+                            </button>
+                        </form>
+
+                        <div className="signin-link" style={{ marginTop: '1rem' }}>
+                            <Link to="/dashboard">Cancel</Link>
+                        </div>
+                    </div>
+
+                    <img src={BottomRightPlant} alt="" className="decor-bottom-right" />
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default OpportunityForm;
