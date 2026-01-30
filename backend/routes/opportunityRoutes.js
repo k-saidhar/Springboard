@@ -6,7 +6,9 @@ const {
   getOpportunities,
   getOpportunityById,
   updateOpportunity,
-  deleteOpportunity
+  deleteOpportunity,
+  applyForOpportunity,
+  updateApplicationStatus
 } = require("../controllers/opportunityController");
 
 // @route   POST /api/opportunities
@@ -32,6 +34,19 @@ router.put("/:id", auth, updateOpportunity);
 // @route   DELETE /api/opportunities/:id
 // @desc    Delete opportunity
 // @access  Private
+// @route   DELETE /api/opportunities/:id
+// @desc    Delete opportunity
+// @access  Private
 router.delete("/:id", auth, deleteOpportunity);
+
+// @route   POST /api/opportunities/:id/apply
+// @desc    Apply for opportunity
+// @access  Private (Volunteer only)
+router.post("/:id/apply", auth, applyForOpportunity);
+
+// @route   PUT /api/opportunities/:id/status
+// @desc    Update application status
+// @access  Private (NGO only)
+router.put("/:id/status", auth, updateApplicationStatus);
 
 module.exports = router;

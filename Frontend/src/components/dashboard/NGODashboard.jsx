@@ -1,20 +1,84 @@
 import React, { useState, useEffect } from 'react';
 import './Dashboard.css';
-import storageService from '../../services/storageService';
+import apiService from '../../services/apiService';
 import { Link, useNavigate } from 'react-router-dom';
 
 const NGODashboard = () => {
     const navigate = useNavigate();
     const [events, setEvents] = useState([]);
+    const [pendingApplications, setPendingApplications] = useState([]);
 
     useEffect(() => {
-        setEvents(storageService.getOpportunities());
+        const fetchData = async () => {
+            try {
+                const response = await apiService.getOpportunities();
+                setEvents(response.data);
+
+                // Extract all pending applications from events
+                const allApplications = [];
+                response.data.forEach(event => {
+                    if (event.applications) {
+                        event.applications.forEach(app => {
+                            if (app.status === 'pending') {
+                                allApplications.push({
+                                    ...app,
+                                    eventTitle: event.title,
+                                    eventId: event._id
+                                });
+                            }
+                        });
+                    }
+                });
+                setPendingApplications(allApplications);
+            } catch (error) {
+                console.error("Error fetching data:", error);
+            }
+        };
+        fetchData();
     }, []);
 
-    const handleDelete = (id) => {
+    const handleDelete = async (id) => {
         if (window.confirm('Are you sure you want to delete this event?')) {
-            storageService.deleteOpportunity(id);
-            setEvents(storageService.getOpportunities());
+            try {
+                await apiService.deleteOpportunity(id);
+                // Refresh list
+                const response = await apiService.getOpportunities();
+                setEvents(response.data);
+            } catch (error) {
+                console.error("Error deleting event:", error);
+                alert("Failed to delete event");
+            }
+        }
+    };
+
+    const handleApplicationStatus = async (eventId, volunteerId, status) => {
+        try {
+            await apiService.updateApplicationStatus(eventId, {
+                volunteerId,
+                status
+            });
+
+            // Refresh applications list
+            const response = await apiService.getOpportunities();
+            const allApplications = [];
+            response.data.forEach(event => {
+                if (event.applications) {
+                    event.applications.forEach(app => {
+                        if (app.status === 'pending') {
+                            allApplications.push({
+                                ...app,
+                                eventTitle: event.title,
+                                eventId: event._id
+                            });
+                        }
+                    });
+                }
+            });
+            setPendingApplications(allApplications);
+            alert(`Application ${status} successfully`);
+        } catch (error) {
+            console.error(`Error updating application status:`, error);
+            alert("Failed to update status");
         }
     };
 
@@ -58,7 +122,7 @@ const NGODashboard = () => {
                     <div className="stat-card">
                         <div className="stat-icon" style={{ color: '#FBC02D', background: '#FFFDE7' }}>👥</div>
                         <div className="stat-info">
-                            <h3>24</h3>
+                            <h3>{pendingApplications.length}</h3>
                             <p>Pending Applications</p>
                         </div>
                     </div>
@@ -85,25 +149,26 @@ const NGODashboard = () => {
                                 <p style={{ color: '#888', fontStyle: 'italic' }}>No events created yet. Click "Create Event" to get started.</p>
                             ) : (
                                 events.map(event => (
-                                    <div key={event.id} className="event-card">
+                                    <div key={event._id} className="event-card">
                                         <div className="event-details">
                                             <h4>{event.title}</h4>
                                             <div className="event-meta">
-                                                <span>📅 {event.date}</span>
+                                                <span>📅 {new Date(event.date).toLocaleDateString()}</span>
                                                 <span>📍 {event.location}</span>
                                             </div>
                                             <p style={{ fontSize: '0.9rem', color: '#666', marginTop: '0.5rem' }}>{event.description}</p>
                                         </div>
                                         <div className="event-actions">
                                             <button
-                                                onClick={() => navigate(`/events/edit/${event.id}`)}
+                                                onClick={() => navigate(`/events/edit/${event._id}`)}
                                                 className="btn-primary"
                                                 style={{ background: 'transparent', color: '#FBC02D', border: '1px solid #FBC02D', marginRight: '0.5rem' }}
                                             >
                                                 Edit
                                             </button>
                                             <button
-                                                onClick={() => handleDelete(event.id)}
+                                                onClick={() => handleDelete(event._id)}
+
                                                 className="btn-primary"
                                                 style={{ background: '#ff5252', border: 'none', color: 'white' }}
                                             >
@@ -122,29 +187,40 @@ const NGODashboard = () => {
                                     <tr>
                                         <th>Volunteer</th>
                                         <th>Event</th>
-                                        <th>Date</th>
+                                        <th>Contact</th>
+                                        <th>Location</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td>John Doe</td>
-                                        <td>Beach Cleanup</td>
-                                        <td>Apr 2, 2026</td>
-                                        <td>
-                                            <button style={{ marginRight: 5, color: 'green', background: 'none', border: 'none', cursor: 'pointer' }}>✔ Approve</button>
-                                            <button style={{ color: 'red', background: 'none', border: 'none', cursor: 'pointer' }}>✖ Reject</button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>Jane Smith</td>
-                                        <td>Beach Cleanup</td>
-                                        <td>Apr 3, 2026</td>
-                                        <td>
-                                            <button style={{ marginRight: 5, color: 'green', background: 'none', border: 'none', cursor: 'pointer' }}>✔ Approve</button>
-                                            <button style={{ color: 'red', background: 'none', border: 'none', cursor: 'pointer' }}>✖ Reject</button>
-                                        </td>
-                                    </tr>
+                                    {pendingApplications.length === 0 ? (
+                                        <tr>
+                                            <td colSpan="5" style={{ textAlign: 'center', padding: '1rem' }}>No pending applications</td>
+                                        </tr>
+                                    ) : (
+                                        pendingApplications.map((app, index) => (
+                                            <tr key={index}>
+                                                <td>{app.volunteer?.username || 'Unknown'}</td>
+                                                <td>{app.eventTitle}</td>
+                                                <td>{app.volunteer?.email}</td>
+                                                <td>{app.volunteer?.location}</td>
+                                                <td>
+                                                    <button
+                                                        onClick={() => handleApplicationStatus(app.eventId, app.volunteer._id, 'accepted')}
+                                                        style={{ marginRight: 5, color: 'green', background: 'none', border: 'none', cursor: 'pointer' }}
+                                                    >
+                                                        ✔ Approve
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleApplicationStatus(app.eventId, app.volunteer._id, 'rejected')}
+                                                        style={{ color: 'red', background: 'none', border: 'none', cursor: 'pointer' }}
+                                                    >
+                                                        ✖ Reject
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    )}
                                 </tbody>
                             </table>
                         </div>
