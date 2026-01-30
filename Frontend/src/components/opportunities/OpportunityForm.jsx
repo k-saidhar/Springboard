@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import storageService from '../../services/storageService';
+import apiService from '../../services/apiService';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import '../layout/RegisterPage.css'; // Reuse RegisterPage layout styles
 import '../auth/RegisterForm.css';   // Reuse Form styles
@@ -26,12 +26,26 @@ const OpportunityForm = () => {
 
     useEffect(() => {
         if (id) {
-            const opportunity = storageService.getOpportunityById(id);
-            if (opportunity) {
-                setFormData(opportunity);
-            }
+            fetchOpportunity();
         }
     }, [id]);
+
+    const fetchOpportunity = async () => {
+        try {
+            const response = await apiService.getOpportunityById(id);
+            const opportunity = response.data;
+            setFormData({
+                title: opportunity.title,
+                description: opportunity.description,
+                skills: opportunity.skills,
+                duration: opportunity.duration,
+                location: opportunity.location,
+                date: opportunity.date.split('T')[0] // Format date for input
+            });
+        } catch (error) {
+            console.error('Error fetching opportunity:', error);
+        }
+    };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -41,10 +55,19 @@ const OpportunityForm = () => {
         }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        storageService.saveOpportunity(formData);
-        navigate('/dashboard');
+        try {
+            if (id) {
+                await apiService.updateOpportunity(id, formData);
+            } else {
+                await apiService.createOpportunity(formData);
+            }
+            navigate('/dashboard');
+        } catch (error) {
+            console.error('Error saving opportunity:', error);
+            alert('Error saving event. Please try again.');
+        }
     };
 
     return (
