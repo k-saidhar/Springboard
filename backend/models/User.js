@@ -10,7 +10,7 @@ const userSchema = new mongoose.Schema(
     role: {
       type: String,
       required: true,
-      enum: ["volunteer", "NGO"]
+      enum: ["volunteer", "NGO", "admin"]
     },
     mobile: {
       type: String,
@@ -36,6 +36,11 @@ const userSchema = new mongoose.Schema(
     otpExpires: {
       type: Date,
       default: null
+    },
+    status: {
+      type: String,
+      default: "Active",
+      enum: ["Active", "Blocked"]
     }
   },
   { timestamps: true }

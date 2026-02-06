@@ -13,6 +13,11 @@ app.use(express.json());
 
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/opportunities", require("./routes/opportunityRoutes"));
+app.use("/api/admin", require("./routes/adminRoutes"));
+
+// Seed Admin User
+const { seedAdmin } = require("./controllers/adminController");
+seedAdmin();
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () =>

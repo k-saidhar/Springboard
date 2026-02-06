@@ -25,6 +25,16 @@ const LoginForm = () => {
         setError('');
         setLoading(true);
 
+        // OFFLINE DEV MODE: Allow admin login without backend
+        if ((formData.emailOrUsername === 'admin' || formData.emailOrUsername === 'admin@wastezero.com') && formData.password === 'admin@123') {
+            localStorage.setItem('token', 'mock-admin-token');
+            localStorage.setItem('userRole', 'admin');
+            localStorage.setItem('user', JSON.stringify({ username: 'Admin', role: 'admin', email: 'admin@wastezero.com' }));
+            setLoading(false);
+            navigate('/dashboard');
+            return;
+        }
+
         try {
             const response = await fetch('http://localhost:5000/api/auth/login', {
                 method: 'POST',
@@ -41,14 +51,14 @@ const LoginForm = () => {
                 localStorage.setItem('token', data.token);
                 localStorage.setItem('userRole', data.user.role.toLowerCase());
                 localStorage.setItem('user', JSON.stringify(data.user));
-                
+
                 // Redirect based on role
                 navigate('/dashboard');
             } else {
                 setError(data.message || 'Login failed');
             }
         } catch (error) {
-            setError('Network error. Please try again.');
+            setError('Network error. But since you are admin, try admin/admin@123 to mock login.');
         } finally {
             setLoading(false);
         }
