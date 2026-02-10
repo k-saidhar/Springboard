@@ -63,6 +63,69 @@ exports.getLogs = async (req, res) => {
     }
 };
 
+const Opportunity = require("../models/Opportunity");
+
+// Get Reports Data
+exports.getReportsData = async (req, res) => {
+    try {
+        const users = await User.find({ role: { $ne: 'admin' } }).select("-password");
+        const opportunities = await Opportunity.find();
+
+        // Aggregate applications from opportunities
+        let applications = [];
+        opportunities.forEach(opp => {
+            if (opp.applications && opp.applications.length > 0) {
+                opp.applications.forEach(app => {
+                    // Need to resolve volunteer name if possible, but here we might just have ID if not populated.
+                    // For better performance, we should populate.
+                    // Let's assume we can re-query or populate in the find().
+                    // For simplicity in this step, let's just push what we have or do a better query below.
+                });
+            }
+        });
+
+        // Better approach: fetch opportunities WITH populated applications
+        const opportunitiesPopulated = await Opportunity.find()
+            .populate('applications.volunteer', 'username email')
+            .populate('createdBy', 'username');
+
+        applications = [];
+        opportunitiesPopulated.forEach(opp => {
+            if (opp.applications) {
+                opp.applications.forEach(app => {
+                    applications.push({
+                        volunteer: app.volunteer ? app.volunteer.username : 'Unknown',
+                        opportunity: opp.title,
+                        status: app.status,
+                        appliedAt: app.appliedAt
+                    });
+                });
+            }
+        });
+
+        const reportData = {
+            counts: {
+                users: users.length,
+                opportunities: opportunities.length,
+                applications: applications.length
+            },
+            users: users,
+            opportunities: opportunitiesPopulated.map(o => ({
+                title: o.title,
+                location: o.location,
+                status: new Date(o.date) > new Date() ? 'Open' : 'Closed',
+                date: o.date
+            })),
+            applications: applications
+        };
+
+        res.json(reportData);
+    } catch (error) {
+        console.error("Error fetching reports:", error);
+        res.status(500).json({ message: error.message });
+    }
+};
+
 // Seed Admin User (Function to be called on server start)
 exports.seedAdmin = async () => {
     try {

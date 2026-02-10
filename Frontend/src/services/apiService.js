@@ -39,6 +39,9 @@ const apiService = {
     // Applications
     applyForOpportunity: (id) => api.post(`/opportunities/${id}/apply`),
     updateApplicationStatus: (id, data) => api.put(`/opportunities/${id}/status`, data),
+
+    // Reports
+    getReports: () => api.get('/admin/reports'),
 };
 
 export default apiService;

@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { getUsers, toggleBlockUser, getLogs } = require("../controllers/adminController");
+const { getUsers, toggleBlockUser, getLogs, getReportsData } = require("../controllers/adminController");
 
 // Middleware to check if user is admin (Basic check for now)
 const isAdmin = (req, res, next) => {
@@ -14,6 +14,7 @@ const isAdmin = (req, res, next) => {
 };
 
 router.get("/users", isAdmin, getUsers);
+router.get("/reports", isAdmin, getReportsData);
 router.put("/users/:id/block", isAdmin, toggleBlockUser);
 router.get("/logs", isAdmin, getLogs);
 

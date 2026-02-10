@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import apiService from '../../services/apiService';
 import { Link } from 'react-router-dom';
 import NotificationIcon from '../notifications/NotificationIcon';
+import ReportsPage from '../reports/ReportsPage';
 
 const AdminDashboard = () => {
     const [users, setUsers] = useState([]);
@@ -321,9 +322,8 @@ const AdminDashboard = () => {
                 )}
 
                 {activeTab === 'reports' && (
-                    <div className="section-container" style={{ textAlign: 'center', padding: '50px' }}>
-                        <h2>⚠️ Reports Module</h2>
-                        <p>This module is currently under development.</p>
+                    <div className="section-container">
+                        <ReportsPage />
                     </div>
                 )}
             </div>

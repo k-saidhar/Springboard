@@ -25,16 +25,6 @@ const LoginForm = () => {
         setError('');
         setLoading(true);
 
-        // OFFLINE DEV MODE: Allow admin login without backend
-        if ((formData.emailOrUsername === 'admin' || formData.emailOrUsername === 'admin@wastezero.com') && formData.password === 'admin@123') {
-            localStorage.setItem('token', 'mock-admin-token');
-            localStorage.setItem('userRole', 'admin');
-            localStorage.setItem('user', JSON.stringify({ username: 'Admin', role: 'admin', email: 'admin@wastezero.com' }));
-            setLoading(false);
-            navigate('/dashboard');
-            return;
-        }
-
         try {
             const response = await fetch('http://localhost:5000/api/auth/login', {
                 method: 'POST',
@@ -55,10 +45,22 @@ const LoginForm = () => {
                 // Redirect based on role
                 navigate('/dashboard');
             } else {
+                // If invalid credentials from backend, show error (don't fallback to mock for wrong password)
                 setError(data.message || 'Login failed');
             }
         } catch (error) {
-            setError('Network error. But since you are admin, try admin/admin@123 to mock login.');
+            console.log("Backend offline, checking for mock admin credentials...");
+            // OFFLINE DEV MODE FALLBACK
+            if ((formData.emailOrUsername === 'admin' || formData.emailOrUsername === 'admin@wastezero.com') && formData.password === 'admin@123') {
+                localStorage.setItem('token', 'mock-admin-token');
+                localStorage.setItem('userRole', 'admin');
+                localStorage.setItem('user', JSON.stringify({ username: 'Admin', role: 'admin', email: 'admin@wastezero.com' }));
+                setLoading(false);
+                navigate('/dashboard');
+                return;
+            }
+
+            setError('Network error. Backend unreachable.');
         } finally {
             setLoading(false);
         }
