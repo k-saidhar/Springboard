@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './Dashboard.css';
 import apiService from '../../services/apiService';
 import { Link } from 'react-router-dom';
+import NotificationIcon from '../notifications/NotificationIcon';
 
 const VolunteerDashboard = () => {
     const [applications, setApplications] = useState([]);
@@ -84,9 +85,10 @@ const VolunteerDashboard = () => {
                     <span className="nav-item active">Dashboard</span>
                     <span className="nav-item">Events</span>
                     <span className="nav-item">My Applications</span>
-                    <span className="nav-item">Messages</span>
+                    <Link to="/messages" className="nav-item" style={{ textDecoration: 'none' }}>Messages</Link>
                     <Link to="/profile" className="nav-item" style={{ textDecoration: 'none' }}>Profile</Link>
                     <Link to="/contact" className="nav-item" style={{ textDecoration: 'none' }}>Contact</Link>
+                    <NotificationIcon />
                 </div>
                 <div className="nav-profile">
                     <a href='/'>Logout</a>

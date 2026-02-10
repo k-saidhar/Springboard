@@ -13,41 +13,47 @@ import './index.css';
 import Dashboard from './components/dashboard/Dashboard';
 
 import UserProfile from './components/profile/UserProfile';
+import MessagingPage from './components/messaging/MessagingPage';
 import OpportunityForm from './components/opportunities/OpportunityForm';
+
+import { NotificationProvider } from './context/NotificationContext';
 
 function App() {
   return (
     <Router>
-      <div className="app-container">
-        <Routes>
-          {/* Login Route */}
-          <Route path="/" element={
-            <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <SplitCard
-                leftContent={<HeroIllustration />}
-                rightContent={<LoginForm />}
-              />
-            </div>
-          } />
-          <Route path="/forgot-password" element={
-            <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <ForgotPassword />
-            </div>
-          } />
+      <NotificationProvider>
+        <div className="app-container">
+          <Routes>
+            {/* Login Route */}
+            <Route path="/" element={
+              <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <SplitCard
+                  leftContent={<HeroIllustration />}
+                  rightContent={<LoginForm />}
+                />
+              </div>
+            } />
+            <Route path="/forgot-password" element={
+              <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <ForgotPassword />
+              </div>
+            } />
 
-          {/* Register Route */}
-          <Route path="/register" element={<RegisterPage />} />
+            {/* Register Route */}
+            <Route path="/register" element={<RegisterPage />} />
 
-          {/* Dashboard Route */}
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/contact" element={<ContactPage />} />
+            {/* Dashboard Route */}
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/contact" element={<ContactPage />} />
 
-          {/* Feature Routes */}
-          <Route path="/profile" element={<UserProfile />} />
-          <Route path="/events/create" element={<OpportunityForm />} />
-          <Route path="/events/edit/:id" element={<OpportunityForm />} />
-        </Routes>
-      </div>
+            {/* Feature Routes */}
+            <Route path="/profile" element={<UserProfile />} />
+            <Route path="/messages" element={<MessagingPage />} />
+            <Route path="/events/create" element={<OpportunityForm />} />
+            <Route path="/events/edit/:id" element={<OpportunityForm />} />
+          </Routes>
+        </div>
+      </NotificationProvider>
     </Router>
   );
 }
