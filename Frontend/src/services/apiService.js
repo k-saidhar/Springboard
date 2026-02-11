@@ -40,6 +40,13 @@ const apiService = {
     applyForOpportunity: (id) => api.post(`/opportunities/${id}/apply`),
     updateApplicationStatus: (id, data) => api.put(`/opportunities/${id}/status`, data),
 
+    // User Profile
+    getProfile: () => api.get('/users/profile'),
+    updateProfile: (data) => api.put('/users/profile', data),
+
+    // Messages
+    sendMessage: (data) => api.post('/messages', data),
+
     // Reports
     getReports: () => api.get('/admin/reports'),
 };

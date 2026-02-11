@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import storageService from '../../services/storageService';
+import apiService from '../../services/apiService';
 import { Link } from 'react-router-dom';
 import '../layout/RegisterPage.css'; // Reuse RegisterPage layout styles
 import '../auth/RegisterForm.css';   // Reuse Form styles
@@ -16,21 +16,34 @@ import { FaUser, FaMapMarkerAlt, FaPhone, FaAddressCard } from 'react-icons/fa';
 const UserProfile = () => {
     const [profile, setProfile] = useState({
         name: '',
-        location: '', // Changed from email to location
+        location: '',
         bio: '',
-        contact: ''
+        contact: '' // This maps to 'mobile' in backend
     });
     const [isEditing, setIsEditing] = useState(false);
     const [message, setMessage] = useState('');
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const storedProfile = storageService.getUserProfile();
-        // Ensure location is initialized if migrating from old data
-        if (!storedProfile.location && storedProfile.email) {
-            // storedProfile.location = ''; // Or keep existing email logic if needed, but user asked to replace
-        }
-        setProfile(prev => ({ ...prev, ...storedProfile }));
+        fetchProfile();
     }, []);
+
+    const fetchProfile = async () => {
+        try {
+            const response = await apiService.getProfile();
+            const data = response.data;
+            setProfile({
+                name: data.username || '',
+                location: data.location || '',
+                bio: data.bio || '',
+                contact: data.mobile || ''
+            });
+        } catch (error) {
+            console.error("Error fetching profile", error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -40,12 +53,17 @@ const UserProfile = () => {
         }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        storageService.saveUserProfile(profile);
-        setIsEditing(false);
-        setMessage('Profile updated successfully!');
-        setTimeout(() => setMessage(''), 3000);
+        try {
+            await apiService.updateProfile(profile);
+            setIsEditing(false);
+            setMessage('Profile updated successfully!');
+            setTimeout(() => setMessage(''), 3000);
+        } catch (error) {
+            console.error("Error updating profile", error);
+            setMessage('Failed to update profile.');
+        }
     };
 
     return (
