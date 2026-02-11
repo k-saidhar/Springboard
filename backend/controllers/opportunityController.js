@@ -1,4 +1,8 @@
 const Opportunity = require("../models/Opportunity");
+const User = require("../models/User");
+const Notification = require("../models/Notification");
+// const Application = require("../models/Application"); // Assuming Application model might not be needed if embedded, but checking imports from source
+
 
 // Create new opportunity
 const createOpportunity = async (req, res) => {
@@ -16,6 +20,47 @@ const createOpportunity = async (req, res) => {
     });
 
     await opportunity.save();
+
+    // Smart Matching Algorithm: Match by location AND skills
+    const skillsArray = skills ? skills.split(',').map(s => s.trim().toLowerCase()) : [];
+
+    const matchQuery = {
+      role: "volunteer",
+      location: location
+    };
+
+    // If skills specified, match volunteers with those skills
+    if (skillsArray.length > 0) {
+      matchQuery.skills = { $in: skillsArray };
+    }
+
+    const matchedVolunteers = await User.find(matchQuery);
+
+    // Get Socket.IO instance
+    const io = req.app.get('io');
+
+    // Send notifications to matched volunteers
+    for (const volunteer of matchedVolunteers) {
+      const notification = await Notification.create({
+        userId: volunteer._id,
+        type: "match",
+        message: `New opportunity "${title}" matches your profile!`,
+        data: {
+          opportunityId: opportunity._id,
+          ngoId: req.user.id,
+          action: 'match'
+        }
+      });
+
+      // Emit real-time notification
+      if (io) {
+        io.to(volunteer._id.toString()).emit("new_notification", {
+          ...notification.toObject(),
+          opportunity
+        });
+      }
+    }
+
     res.status(201).json(opportunity);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -89,8 +134,8 @@ const deleteOpportunity = async (req, res) => {
       return res.status(404).json({ message: "Opportunity not found" });
     }
 
-    // Check if user owns this opportunity
-    if (opportunity.createdBy.toString() !== req.user.id) {
+    // Check if user owns this opportunity OR is an admin
+    if (opportunity.createdBy.toString() !== req.user.id && req.user.role !== 'admin') {
       return res.status(403).json({ message: "Not authorized" });
     }
 
@@ -125,6 +170,29 @@ const applyForOpportunity = async (req, res) => {
     });
 
     await opportunity.save();
+
+    // Create notification for NGO about new application
+    const ngoNotification = await Notification.create({
+      userId: opportunity.createdBy._id,
+      type: "application",
+      message: `${req.user.username} applied for "${opportunity.title}"`,
+      data: {
+        opportunityId: opportunity._id,
+        volunteerId: req.user.id,
+        action: 'created'
+      }
+    });
+
+    // Emit real-time notification to NGO
+    const io = req.app.get('io');
+    if (io) {
+      io.to(opportunity.createdBy._id.toString()).emit("new_application", {
+        ...ngoNotification.toObject(),
+        volunteer: req.user,
+        opportunity
+      });
+    }
+
     res.json({ message: "Application submitted successfully" });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -156,6 +224,32 @@ const updateApplicationStatus = async (req, res) => {
 
     application.status = status;
     await opportunity.save();
+
+    // Get volunteer details (req.user is NGO)
+    // We need to fetch volunteer info to send notification
+    // The volunteerId is passed in req.body
+
+    // Create notification for volunteer about status change
+    const volunteerNotification = await Notification.create({
+      userId: volunteerId,
+      type: status === 'accepted' ? "approval" : "rejection",
+      message: `Your application for "${opportunity.title}" was ${status}`,
+      data: {
+        opportunityId: opportunity._id,
+        ngoId: req.user.id,
+        action: status
+      }
+    });
+
+    // Emit real-time notification to volunteer
+    const io = req.app.get('io');
+    if (io) {
+      io.to(volunteerId.toString()).emit("application_status_update", {
+        ...volunteerNotification.toObject(),
+        opportunity,
+        status
+      });
+    }
 
     res.json({ message: `Application ${status} successfully` });
   } catch (error) {

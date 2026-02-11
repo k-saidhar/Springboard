@@ -59,8 +59,8 @@
     /* Interpretation: Behind the card (like the right leaf) at the top left corner */
 
     right: 50%;
-    top:auto;
-    
+    top: auto;
+
     width: 180px;
     margin-right: -50px;
     z-index: 10;
@@ -78,7 +78,7 @@
     /* "slightly move the right side leaf to the right" */
     /* Previous was -50px margin. Now "to the right" means less negative margin (closer to 100%) or positive margin */
     /* Let's try -20px margin-left (moved right by 30px) */
-    margin-left: -450px;
+    margin-left: -670px;
     /* Moved slightly out from behind the card */
     /* "send it to the back of the centre panel" */
     z-index: 5;
