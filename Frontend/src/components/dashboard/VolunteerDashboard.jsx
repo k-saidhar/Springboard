@@ -37,8 +37,13 @@ const VolunteerDashboard = () => {
                             ngoName: event.createdBy?.username || 'Unknown NGO'
                         });
                     } else {
-                        // Only show future events that user hasn't applied to yet
-                        if (new Date(event.date) > new Date()) {
+                        // Only show future events that user hasn't applied to yet (including today)
+                        const eventDate = new Date(event.date);
+                        const today = new Date();
+                        eventDate.setHours(0, 0, 0, 0);
+                        today.setHours(0, 0, 0, 0);
+
+                        if (eventDate >= today) {
                             otherEvents.push(event);
                         }
                     }

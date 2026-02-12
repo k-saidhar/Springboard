@@ -43,7 +43,7 @@ const LoginForm = () => {
                 localStorage.setItem('user', JSON.stringify(data.user));
 
                 // Redirect based on role
-                navigate('/dashboard');
+                window.location.href = '/dashboard';
             } else {
                 // If invalid credentials from backend, show error (don't fallback to mock for wrong password)
                 setError(data.message || 'Login failed');
@@ -56,7 +56,7 @@ const LoginForm = () => {
                 localStorage.setItem('userRole', 'admin');
                 localStorage.setItem('user', JSON.stringify({ username: 'Admin', role: 'admin', email: 'admin@wastezero.com' }));
                 setLoading(false);
-                navigate('/dashboard');
+                window.location.href = '/dashboard';
                 return;
             }
 
