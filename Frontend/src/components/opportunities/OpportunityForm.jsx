@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import apiService from '../../services/apiService';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import '../layout/RegisterPage.css'; // Reuse RegisterPage layout styles
@@ -12,23 +12,52 @@ import BottomRightPlant from '../../assets/Bottom right.svg';
 // Icons
 import { FaCalendarAlt, FaClock, FaMapMarkerAlt, FaTools, FaFileAlt, FaPen } from 'react-icons/fa';
 
+const eventSkills = [
+    "Teaching",
+    "Event Planning",
+    "Community Outreach",
+    "Fundraising",
+    "Healthcare Support",
+    "Environmental Conservation",
+    "Youth Mentoring",
+    "Administrative Support",
+    "Social Media Management",
+    "Technical Support"
+];
+
 const OpportunityForm = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
         title: '',
         description: '',
-        skills: '',
+        skills: [],
         duration: '',
         location: '',
         date: ''
     });
+    const [showSkills, setShowSkills] = useState(false);
+    const skillsRef = useRef(null);
 
     useEffect(() => {
         if (id) {
             fetchOpportunity();
         }
     }, [id]);
+
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (skillsRef.current && !skillsRef.current.contains(event.target)) {
+                setShowSkills(false);
+            }
+        }
+
+        document.addEventListener("mousedown", handleClickOutside);
+
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
 
     const fetchOpportunity = async () => {
         try {
@@ -37,7 +66,7 @@ const OpportunityForm = () => {
             setFormData({
                 title: opportunity.title,
                 description: opportunity.description,
-                skills: opportunity.skills,
+                skills: Array.isArray(opportunity.skills) ? opportunity.skills : [],
                 duration: opportunity.duration,
                 location: opportunity.location,
                 date: opportunity.date.split('T')[0] // Format date for input
@@ -153,19 +182,46 @@ const OpportunityForm = () => {
                                 </div>
                             </div>
 
-                            <div className="form-group">
+                            <div className="form-group" ref={skillsRef}>
                                 <div className="input-with-icon">
                                     <FaTools className="input-icon" />
-                                    <input
-                                        type="text"
-                                        name="skills"
+                                    <div
                                         className="form-input has-icon"
-                                        placeholder="Required Skills (e.g., Planting)"
-                                        value={formData.skills}
-                                        onChange={handleChange}
-                                        style={{ width: '100%' }}
-                                    />
+                                        style={{ cursor: "pointer", width: '100%' }}
+                                        onClick={() => setShowSkills(!showSkills)}
+                                    >
+                                        {formData.skills.length > 0
+                                            ? formData.skills.join(", ")
+                                            : "Select Required Skills"}
+                                    </div>
                                 </div>
+
+                                {showSkills && (
+                                    <div className="skills-grid">
+                                        {eventSkills.map((skill, index) => (
+                                            <label key={index} className="skill-item">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={formData.skills.includes(skill)}
+                                                    onChange={(e) => {
+                                                        if (e.target.checked) {
+                                                            setFormData({
+                                                                ...formData,
+                                                                skills: [...formData.skills, skill]
+                                                            });
+                                                        } else {
+                                                            setFormData({
+                                                                ...formData,
+                                                                skills: formData.skills.filter(s => s !== skill)
+                                                            });
+                                                        }
+                                                    }}
+                                                />
+                                                {skill}
+                                            </label>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
 
                             <div className="form-group">

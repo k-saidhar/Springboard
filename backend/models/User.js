@@ -24,6 +24,10 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: ""
     },
+    skills: {
+      type: [String],
+      default: []
+    },
     email: {
       type: String,
       required: true,

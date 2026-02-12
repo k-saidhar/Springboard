@@ -47,6 +47,9 @@ const apiService = {
     // Messages
     sendMessage: (data) => api.post('/messages', data),
 
+    // Match
+    getMatchedOpportunities: (userId) => api.get(`/match/${userId}`),
+
     // Reports
     getReports: () => api.get('/admin/reports'),
 };

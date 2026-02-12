@@ -11,8 +11,8 @@ const opportunitySchema = new mongoose.Schema(
       required: true
     },
     skills: {
-      type: String,
-      default: ""
+      type: [String],
+      default: []
     },
     duration: {
       type: String,

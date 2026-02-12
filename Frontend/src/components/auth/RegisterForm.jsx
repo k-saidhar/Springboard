@@ -1,6 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './RegisterForm.css';
+
+const volunteerSkills = [
+    "Teaching",
+    "Event Planning",
+    "Community Outreach",
+    "Fundraising",
+    "Healthcare Support",
+    "Environmental Conservation",
+    "Youth Mentoring",
+    "Administrative Support",
+    "Social Media Management",
+    "Technical Support"
+];
 
 const RegisterForm = () => {
     const navigate = useNavigate();
@@ -11,10 +24,27 @@ const RegisterForm = () => {
         location: '',
         email: '',
         password: '',
-        confirmPassword: ''
+        confirmPassword: '',
+        skills: []
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [showSkills, setShowSkills] = useState(false);
+    const skillsRef = useRef(null);
+
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (skillsRef.current && !skillsRef.current.contains(event.target)) {
+                setShowSkills(false);
+            }
+        }
+
+        document.addEventListener("mousedown", handleClickOutside);
+
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
 
     const handleChange = (e) => {
         setFormData({
@@ -26,7 +56,7 @@ const RegisterForm = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
-        
+
         if (formData.password !== formData.confirmPassword) {
             setError('Passwords do not match');
             return;
@@ -45,7 +75,8 @@ const RegisterForm = () => {
                     mobile: formData.mobile,
                     location: formData.location,
                     email: formData.email,
-                    password: formData.password
+                    password: formData.password,
+                    skills: formData.skills
                 })
             });
 
@@ -79,11 +110,11 @@ const RegisterForm = () => {
                         <svg className="input-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                         </svg>
-                        <input 
-                            type="text" 
+                        <input
+                            type="text"
                             name="username"
-                            placeholder="Username" 
-                            className="form-input has-icon" 
+                            placeholder="Username"
+                            className="form-input has-icon"
                             value={formData.username}
                             onChange={handleChange}
                             required
@@ -97,9 +128,9 @@ const RegisterForm = () => {
                         <svg className="input-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                         </svg>
-                        <select 
+                        <select
                             name="role"
-                            className="form-input has-icon" 
+                            className="form-input has-icon"
                             value={formData.role}
                             onChange={handleChange}
                             required
@@ -111,17 +142,59 @@ const RegisterForm = () => {
                     </div>
                 </div>
 
+                {/* Skills Selection - Only for Volunteers */}
+                {formData.role === "volunteer" && (
+                    <div className="form-group" ref={skillsRef}>
+                        <div
+                            className="form-input has-icon"
+                            style={{ cursor: "pointer" }}
+                            onClick={() => setShowSkills(!showSkills)}
+                        >
+                            {formData.skills.length > 0
+                                ? formData.skills.join(", ")
+                                : "Select Skills"}
+                        </div>
+
+                        {showSkills && (
+                            <div className="skills-grid">
+                                {volunteerSkills.map((skill, index) => (
+                                    <label key={index} className="skill-item">
+                                        <input
+                                            type="checkbox"
+                                            checked={formData.skills.includes(skill)}
+                                            onChange={(e) => {
+                                                if (e.target.checked) {
+                                                    setFormData({
+                                                        ...formData,
+                                                        skills: [...formData.skills, skill]
+                                                    });
+                                                } else {
+                                                    setFormData({
+                                                        ...formData,
+                                                        skills: formData.skills.filter(s => s !== skill)
+                                                    });
+                                                }
+                                            }}
+                                        />
+                                        {skill}
+                                    </label>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                )}
+
                 {/* Mobile Number */}
                 <div className="form-group">
                     <div className="input-with-icon">
                         <svg className="input-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
                         </svg>
-                        <input 
-                            type="tel" 
+                        <input
+                            type="tel"
                             name="mobile"
-                            placeholder="Mobile number" 
-                            className="form-input has-icon" 
+                            placeholder="Mobile number"
+                            className="form-input has-icon"
                             value={formData.mobile}
                             onChange={handleChange}
                             required
@@ -136,11 +209,11 @@ const RegisterForm = () => {
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                         </svg>
-                        <input 
-                            type="text" 
+                        <input
+                            type="text"
                             name="location"
-                            placeholder="Location" 
-                            className="form-input has-icon" 
+                            placeholder="Location"
+                            className="form-input has-icon"
                             value={formData.location}
                             onChange={handleChange}
                             required
@@ -154,11 +227,11 @@ const RegisterForm = () => {
                         <svg className="input-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                         </svg>
-                        <input 
-                            type="email" 
+                        <input
+                            type="email"
                             name="email"
-                            placeholder="Email" 
-                            className="form-input has-icon" 
+                            placeholder="Email"
+                            className="form-input has-icon"
                             value={formData.email}
                             onChange={handleChange}
                             required
@@ -172,11 +245,11 @@ const RegisterForm = () => {
                         <svg className="input-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                         </svg>
-                        <input 
-                            type="password" 
+                        <input
+                            type="password"
                             name="password"
-                            placeholder="Password" 
-                            className="form-input has-icon" 
+                            placeholder="Password"
+                            className="form-input has-icon"
                             value={formData.password}
                             onChange={handleChange}
                             required
@@ -190,11 +263,11 @@ const RegisterForm = () => {
                         <svg className="input-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                         </svg>
-                        <input 
-                            type="password" 
+                        <input
+                            type="password"
                             name="confirmPassword"
-                            placeholder="Confirm password" 
-                            className="form-input has-icon" 
+                            placeholder="Confirm password"
+                            className="form-input has-icon"
                             value={formData.confirmPassword}
                             onChange={handleChange}
                             required

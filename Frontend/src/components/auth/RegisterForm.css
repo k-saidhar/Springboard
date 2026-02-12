@@ -96,3 +96,36 @@
     /* Blue link */
     font-weight: 700;
 }
+
+/* ===== Skills Checkbox Styling ===== */
+
+.skills-grid {
+    border: 1px solid #dfe3eb;
+    background: #f8f9fd;
+    border-radius: 10px;
+    padding: 10px;
+    margin-top: 8px;
+    max-height: 250px;
+    overflow-y: auto;
+}
+
+.skill-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 6px 0;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.skill-item input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: #1D8CF8;
+    cursor: pointer;
+}
+
+.skills-grid:hover {
+    border: 1px solid #1D8CF8;
+    background: #fff;
+}
