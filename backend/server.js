@@ -1,15 +1,18 @@
 const express = require("express");
 const cors = require("cors");
+const http = require("http");
 const dotenv = require("dotenv");
 const connectDB = require("./config/db");
+const { Server } = require("socket.io");
+const socketHandler = require("./socket/chatSocket")
 
 dotenv.config();
 connectDB();
 
 const app = express();
-const http = require('http');
 const server = http.createServer(app);
-const { Server } = require("socket.io");
+
+
 
 const io = new Server(server, {
   cors: {
@@ -17,6 +20,9 @@ const io = new Server(server, {
     methods: ["GET", "POST", "PUT", "DELETE"]
   }
 });
+
+
+socketHandler(io);
 
 // Make io accessible in routes
 app.set('io', io);
@@ -42,9 +48,16 @@ app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/opportunities", require("./routes/opportunityRoutes"));
 app.use("/api/admin", require("./routes/adminRoutes"));
 app.use("/api/notifications", require("./routes/notificationRoutes"));
-app.use("/api/users", require("./routes/userRoutes"));
-app.use("/api/messages", require("./routes/messageRoutes"));
-app.use("/api/match", require("./routes/matchRoutes"));
+app.use("/api/chat", require("./routes/chatRoutes"));
+
+// --- GLOBAL ERROR HANDLER (Recommended Addition) ---
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({
+    message: "Something went wrong on the server!",
+    error: process.env.NODE_ENV === "development" ? err.message : {}
+  });
+});
 
 // Seed Admin User
 const { seedAdmin } = require("./controllers/adminController");

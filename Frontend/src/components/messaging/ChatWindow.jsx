@@ -35,7 +35,7 @@ const ChatWindow = ({ chat, messages, onSendMessage, currentUserId }) => {
         <div className="chat-window">
             <div className="chat-header">
                 <div className="chat-avatar" style={{ backgroundImage: chat.avatar ? `url(${chat.avatar})` : 'none' }}>
-                    {!chat.avatar && chat.name.charAt(0)}
+                    {!chat.avatar && chat.name?.charAt(0)}
                 </div>
                 <div className="chat-info">
                     <div className="chat-name">{chat.name}</div>
@@ -44,18 +44,22 @@ const ChatWindow = ({ chat, messages, onSendMessage, currentUserId }) => {
             </div>
 
             <div className="chat-messages">
-                {messages.length === 0 ? (
+                {!messages || messages.length === 0 ? (
                     <div style={{ textAlign: 'center', color: '#888', marginTop: '20px' }}>
                         Start the conversation with {chat.name}!
                     </div>
                 ) : (
-                    messages.map((msg, index) => {
-                        const isSent = msg.senderId === currentUserId;
+                    messages.map((msg) => {
+                        const messageKey = msg._id || `${msg.senderId}-${msg.timestamp}-${msg.text}`;
+                        const isSent = String(msg.senderId) === String(currentUserId);
+                        
                         return (
-                            <div key={index} className={`message ${isSent ? 'sent' : 'received'}`}>
+                            <div key={messageKey} className={`message ${isSent ? 'sent' : 'received'}`}>
                                 <div className="message-content">{msg.text}</div>
                                 <div className="message-time">
-                                    {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                    {msg.timestamp ? 
+                                        new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) 
+                                        : ''}
                                 </div>
                             </div>
                         );

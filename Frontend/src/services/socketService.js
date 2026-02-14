@@ -36,10 +36,18 @@ class SocketService {
         }
     }
 
-    joinRoom(room) {
-        if (this.socket) {
-            this.socket.emit('join_room', room);
-        }
+    
+    joinRoom(chatId) { 
+    if (this.socket) {
+        this.socket.emit('join_chat', chatId);
+        console.log(`Joining chat room: ${chatId}`);
+    }
+    }
+
+    joinNotificationRoom(userId) {
+    if (this.socket) {
+        this.socket.emit('join', userId); 
+    }
     }
 
     leaveRoom(room) {

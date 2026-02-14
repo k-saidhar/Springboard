@@ -22,8 +22,11 @@ const createOpportunity = async (req, res) => {
     await opportunity.save();
 
     // Smart Matching Algorithm: Match by location AND skills
-    const skillsArray = skills ? skills.split(',').map(s => s.trim().toLowerCase()) : [];
-
+    // const skillsArray = skills ? skills.split(',').map(s => s.trim().toLowerCase()) : [];
+    const skillsArray = Array.isArray(skills) 
+    ? skills.map(s => s.trim().toLowerCase()) 
+    : (skills ? skills.split(',').map(s => s.trim().toLowerCase()) : []);
+    
     const matchQuery = {
       role: "volunteer",
       location: location
