@@ -50,3 +50,20 @@ exports.updateUserProfile = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+// Get All Users (for network page)
+exports.getAllUsers = async (req, res) => {
+    try {
+        const currentUserId = req.query.currentUserId;
+
+        // Get all users except the current user, excluding sensitive fields
+        const users = await User.find({
+            _id: { $ne: currentUserId }
+        }).select('username email role location skills availability');
+
+        res.json(users);
+    } catch (error) {
+        console.error('Error fetching users:', error);
+        res.status(500).json({ message: error.message });
+    }
+};

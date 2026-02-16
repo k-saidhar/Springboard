@@ -3,11 +3,15 @@ import './Dashboard.css';
 import apiService from '../../services/apiService';
 import { Link, useNavigate } from 'react-router-dom';
 import NGONotificationBell from '../notifications/NGONotificationBell';
+import MatchResultsModal from './MatchResultsModal';
 
 const NGODashboard = () => {
     const navigate = useNavigate();
     const [events, setEvents] = useState([]);
     const [pendingApplications, setPendingApplications] = useState([]);
+    const [matchModalOpen, setMatchModalOpen] = useState(false);
+    const [currentMatches, setCurrentMatches] = useState([]);
+    const [currentOpportunityTitle, setCurrentOpportunityTitle] = useState('');
 
     useEffect(() => {
         const fetchData = async () => {
@@ -83,6 +87,25 @@ const NGODashboard = () => {
         }
     };
 
+    const handleFindMatches = async (opportunityId, opportunityTitle) => {
+        try {
+            const response = await apiService.findMatches(opportunityId);
+            setCurrentMatches(response.data.matches || []);
+            setCurrentOpportunityTitle(opportunityTitle);
+            setMatchModalOpen(true);
+        } catch (error) {
+            console.error("Error finding matches:", error);
+            alert("Failed to find matches. Please try again.");
+        }
+    };
+
+    const handleSendInvitations = (selectedVolunteers) => {
+        // Placeholder for future invitation system
+        console.log("Sending invitations to:", selectedVolunteers);
+        alert(`Invitations sent to ${selectedVolunteers.length} volunteer(s)!`);
+        setMatchModalOpen(false);
+    };
+
     return (
         <div className="dashboard-container">
             {/* Navbar */}
@@ -92,8 +115,10 @@ const NGODashboard = () => {
                 </div>
                 <div className="nav-links">
                     <span className="nav-item active">Dashboard</span>
-                    <span className="nav-item">Manage Events</span>
+                    <Link to="/events" className="nav-item" style={{ textDecoration: 'none' }}>Manage Events</Link>
+                    <Link to="/applications" className="nav-item" style={{ textDecoration: 'none' }}>Applications</Link>
                     <span className="nav-item">Volunteers</span>
+                    <Link to="/network" className="nav-item" style={{ textDecoration: 'none' }}>Network</Link>
                     <Link to="/messages" className="nav-item" style={{ textDecoration: 'none' }}>Messages</Link>
                     <Link to="/profile" className="nav-item" style={{ textDecoration: 'none' }}>Profile</Link>
                     <Link to="/contact" className="nav-item" style={{ textDecoration: 'none' }}>Contact</Link>
@@ -161,6 +186,13 @@ const NGODashboard = () => {
                                             <p style={{ fontSize: '0.9rem', color: '#666', marginTop: '0.5rem' }}>{event.description}</p>
                                         </div>
                                         <div className="event-actions">
+                                            <button
+                                                onClick={() => handleFindMatches(event._id, event.title)}
+                                                className="btn-primary"
+                                                style={{ background: '#4CAF50', border: 'none', color: 'white', marginRight: '0.5rem' }}
+                                            >
+                                                🎯 Find Matches
+                                            </button>
                                             <button
                                                 onClick={() => navigate(`/events/edit/${event._id}`)}
                                                 className="btn-primary"
@@ -239,6 +271,16 @@ const NGODashboard = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Match Results Modal */}
+            {matchModalOpen && (
+                <MatchResultsModal
+                    matches={currentMatches}
+                    opportunityTitle={currentOpportunityTitle}
+                    onClose={() => setMatchModalOpen(false)}
+                    onSendInvitations={handleSendInvitations}
+                />
+            )}
         </div>
     );
 };

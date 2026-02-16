@@ -88,8 +88,9 @@ const VolunteerDashboard = () => {
                 </div>
                 <div className="nav-links">
                     <span className="nav-item active">Dashboard</span>
-                    <span className="nav-item">Events</span>
-                    <span className="nav-item">My Applications</span>
+                    <Link to="/events" className="nav-item" style={{ textDecoration: 'none' }}>Events</Link>
+                    <Link to="/applications" className="nav-item" style={{ textDecoration: 'none' }}>My Applications</Link>
+                    <Link to="/network" className="nav-item" style={{ textDecoration: 'none' }}>Network</Link>
                     <Link to="/messages" className="nav-item" style={{ textDecoration: 'none' }}>Messages</Link>
                     <Link to="/profile" className="nav-item" style={{ textDecoration: 'none' }}>Profile</Link>
                     <Link to="/contact" className="nav-item" style={{ textDecoration: 'none' }}>Contact</Link>

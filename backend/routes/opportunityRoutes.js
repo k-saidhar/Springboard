@@ -8,7 +8,8 @@ const {
   updateOpportunity,
   deleteOpportunity,
   applyForOpportunity,
-  updateApplicationStatus
+  updateApplicationStatus,
+  findMatchedVolunteers
 } = require("../controllers/opportunityController");
 
 // @route   POST /api/opportunities
@@ -48,5 +49,10 @@ router.post("/:id/apply", protect, applyForOpportunity);
 // @desc    Update application status
 // @access  Private (NGO only)
 router.put("/:id/status", protect, updateApplicationStatus);
+
+// @route   POST /api/opportunities/:id/match
+// @desc    Find matched volunteers for opportunity
+// @access  Private (NGO only)
+router.post("/:id/match", protect, findMatchedVolunteers);
 
 module.exports = router;

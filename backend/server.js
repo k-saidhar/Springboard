@@ -49,6 +49,10 @@ app.use("/api/opportunities", require("./routes/opportunityRoutes"));
 app.use("/api/admin", require("./routes/adminRoutes"));
 app.use("/api/notifications", require("./routes/notificationRoutes"));
 app.use("/api/chat", require("./routes/chatRoutes"));
+app.use("/api/connections", require("./routes/connectionRoutes"));
+app.use("/api/users", require("./routes/userRoutes"));
+app.use("/api/messages", require("./routes/messageRoutes"));
+app.use("/api/match", require("./routes/matchRoutes"));
 
 // --- GLOBAL ERROR HANDLER (Recommended Addition) ---
 app.use((err, req, res, next) => {

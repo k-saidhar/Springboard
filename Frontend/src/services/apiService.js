@@ -49,6 +49,14 @@ const apiService = {
 
     // Match
     getMatchedOpportunities: (userId) => api.get(`/match/${userId}`),
+    findMatches: (opportunityId) => api.post(`/opportunities/${opportunityId}/match`),
+
+    // Connections (Network)
+    getConnections: () => api.get('/connections'),
+    getConnectionStatus: () => api.get('/connections/status'),
+    sendConnectionRequest: (toId) => api.post('/connections/request', { toId }),
+    acceptConnectionRequest: (connectionId) => api.post('/connections/accept', { connectionId }),
+    rejectConnectionRequest: (connectionId) => api.post('/connections/reject', { connectionId }),
 
     // Reports
     getReports: () => api.get('/admin/reports'),

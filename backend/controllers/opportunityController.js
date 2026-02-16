@@ -23,10 +23,10 @@ const createOpportunity = async (req, res) => {
 
     // Smart Matching Algorithm: Match by location AND skills
     // const skillsArray = skills ? skills.split(',').map(s => s.trim().toLowerCase()) : [];
-    const skillsArray = Array.isArray(skills) 
-    ? skills.map(s => s.trim().toLowerCase()) 
-    : (skills ? skills.split(',').map(s => s.trim().toLowerCase()) : []);
-    
+    const skillsArray = Array.isArray(skills)
+      ? skills.map(s => s.trim().toLowerCase())
+      : (skills ? skills.split(',').map(s => s.trim().toLowerCase()) : []);
+
     const matchQuery = {
       role: "volunteer",
       location: location
@@ -260,6 +260,115 @@ const updateApplicationStatus = async (req, res) => {
   }
 };
 
+// Find matched volunteers for an opportunity (Match Suggestion Feature)
+const findMatchedVolunteers = async (req, res) => {
+  try {
+    const opportunity = await Opportunity.findById(req.params.id);
+
+    if (!opportunity) {
+      return res.status(404).json({ message: "Opportunity not found" });
+    }
+
+    // Check ownership
+    if (opportunity.createdBy.toString() !== req.user.id) {
+      return res.status(403).json({ message: "Not authorized" });
+    }
+
+    // Get all volunteers
+    const volunteers = await User.find({ role: "volunteer" }).select(
+      'username email location skills availability'
+    );
+
+    // Scoring algorithm
+    const scoredVolunteers = volunteers.map(volunteer => {
+      let score = 0;
+      const breakdown = {
+        location: 0,
+        skills: 0,
+        availability: 0
+      };
+
+      // Location match (30 points)
+      if (volunteer.location && opportunity.location) {
+        if (volunteer.location.toLowerCase() === opportunity.location.toLowerCase()) {
+          score += 30;
+          breakdown.location = 30;
+        } else if (
+          volunteer.location.toLowerCase().includes(opportunity.location.toLowerCase()) ||
+          opportunity.location.toLowerCase().includes(volunteer.location.toLowerCase())
+        ) {
+          score += 15;
+          breakdown.location = 15;
+        }
+      }
+
+      // Skills match (50 points)
+      if (volunteer.skills && volunteer.skills.length > 0 && opportunity.skills && opportunity.skills.length > 0) {
+        const volunteerSkills = volunteer.skills.map(s => s.toLowerCase());
+        const opportunitySkills = Array.isArray(opportunity.skills)
+          ? opportunity.skills.map(s => s.toLowerCase())
+          : opportunity.skills.split(',').map(s => s.trim().toLowerCase());
+
+        const matchingSkills = volunteerSkills.filter(skill =>
+          opportunitySkills.some(oppSkill => oppSkill.includes(skill) || skill.includes(oppSkill))
+        );
+
+        if (matchingSkills.length > 0) {
+          const skillScore = Math.min(50, (matchingSkills.length / opportunitySkills.length) * 50);
+          score += skillScore;
+          breakdown.skills = Math.round(skillScore);
+        }
+      }
+
+      // Availability match (20 points)
+      if (volunteer.availability && opportunity.date) {
+        const opportunityDate = new Date(opportunity.date);
+        const availabilityArray = Array.isArray(volunteer.availability)
+          ? volunteer.availability
+          : [volunteer.availability];
+
+        const isAvailable = availabilityArray.some(avail => {
+          if (typeof avail === 'string') {
+            const availDate = new Date(avail);
+            const timeDiff = Math.abs(availDate - opportunityDate);
+            const daysDiff = timeDiff / (1000 * 60 * 60 * 24);
+            return daysDiff <= 7; // Within a week
+          }
+          return false;
+        });
+
+        if (isAvailable) {
+          score += 20;
+          breakdown.availability = 20;
+        }
+      }
+
+      return {
+        volunteer: {
+          _id: volunteer._id,
+          username: volunteer.username,
+          email: volunteer.email,
+          location: volunteer.location,
+          skills: volunteer.skills,
+          availability: volunteer.availability
+        },
+        score: Math.round(score),
+        breakdown
+      };
+    });
+
+    // Sort by score (highest first) and filter out zero scores
+    const matches = scoredVolunteers
+      .filter(v => v.score > 0)
+      .sort((a, b) => b.score - a.score);
+
+    res.json({ matches });
+  } catch (error) {
+    console.error('Error finding matches:', error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   createOpportunity,
   getOpportunities,
@@ -267,5 +376,6 @@ module.exports = {
   updateOpportunity,
   deleteOpportunity,
   applyForOpportunity,
-  updateApplicationStatus
+  updateApplicationStatus,
+  findMatchedVolunteers
 };

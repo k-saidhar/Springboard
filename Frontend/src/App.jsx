@@ -14,6 +14,9 @@ import Dashboard from './components/dashboard/Dashboard';
 
 import UserProfile from './components/profile/UserProfile';
 import MessagingPage from './components/messaging/MessagingPage';
+import NetworkPage from './components/network/NetworkPage';
+import EventsPage from './components/events/EventsPage';
+import ApplicationsPage from './components/applications/ApplicationsPage';
 import OpportunityForm from './components/opportunities/OpportunityForm';
 
 import { NotificationProvider } from './context/NotificationContext';
@@ -48,6 +51,9 @@ function App() {
 
             {/* Feature Routes */}
             <Route path="/profile" element={<UserProfile />} />
+            <Route path="/network" element={<NetworkPage />} />
+            <Route path="/events" element={<EventsPage />} />
+            <Route path="/applications" element={<ApplicationsPage />} />
             <Route path="/messages" element={<MessagingPage />} />
             <Route path="/events/create" element={<OpportunityForm />} />
             <Route path="/events/edit/:id" element={<OpportunityForm />} />
