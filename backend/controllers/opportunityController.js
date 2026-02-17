@@ -263,14 +263,24 @@ const updateApplicationStatus = async (req, res) => {
 // Find matched volunteers for an opportunity (Match Suggestion Feature)
 const findMatchedVolunteers = async (req, res) => {
   try {
+    console.log("Finding matches for opportunity ID:", req.params.id);
+    console.log("User ID:", req.user.id);
+
     const opportunity = await Opportunity.findById(req.params.id);
 
     if (!opportunity) {
+      console.log("Opportunity not found");
       return res.status(404).json({ message: "Opportunity not found" });
     }
 
+    console.log("Opportunity found:", opportunity.title);
+    console.log("Opportunity createdBy:", opportunity.createdBy);
+    console.log("Opportunity skills:", opportunity.skills);
+    console.log("Opportunity location:", opportunity.location);
+
     // Check ownership
     if (opportunity.createdBy.toString() !== req.user.id) {
+      console.log("Authorization failed - not the owner");
       return res.status(403).json({ message: "Not authorized" });
     }
 
@@ -278,6 +288,8 @@ const findMatchedVolunteers = async (req, res) => {
     const volunteers = await User.find({ role: "volunteer" }).select(
       'username email location skills availability'
     );
+
+    console.log(`Found ${volunteers.length} volunteers`);
 
     // Scoring algorithm
     const scoredVolunteers = volunteers.map(volunteer => {
@@ -362,6 +374,7 @@ const findMatchedVolunteers = async (req, res) => {
       .filter(v => v.score > 0)
       .sort((a, b) => b.score - a.score);
 
+    console.log(`Found ${matches.length} matches with score > 0`);
     res.json({ matches });
   } catch (error) {
     console.error('Error finding matches:', error);

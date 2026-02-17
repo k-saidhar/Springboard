@@ -89,13 +89,30 @@ const NGODashboard = () => {
 
     const handleFindMatches = async (opportunityId, opportunityTitle) => {
         try {
+            console.log("Finding matches for opportunity:", opportunityId);
+            console.log("Opportunity title:", opportunityTitle);
+
             const response = await apiService.findMatches(opportunityId);
+            console.log("Match response:", response);
+
             setCurrentMatches(response.data.matches || []);
             setCurrentOpportunityTitle(opportunityTitle);
             setMatchModalOpen(true);
         } catch (error) {
             console.error("Error finding matches:", error);
-            alert("Failed to find matches. Please try again.");
+            console.error("Error response:", error.response);
+            console.error("Error message:", error.message);
+
+            if (error.response) {
+                // Server responded with error
+                alert(`Failed to find matches: ${error.response.data.message || error.response.statusText}`);
+            } else if (error.request) {
+                // Request made but no response
+                alert("Failed to find matches: No response from server. Please check if the backend is running.");
+            } else {
+                // Something else happened
+                alert(`Failed to find matches: ${error.message}`);
+            }
         }
     };
 
