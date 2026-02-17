@@ -146,7 +146,7 @@ const NGODashboard = () => {
                     <span className="nav-item active">Dashboard</span>
                     <Link to="/events" className="nav-item" style={{ textDecoration: 'none' }}>Manage Events</Link>
                     <Link to="/applications" className="nav-item" style={{ textDecoration: 'none' }}>Applications</Link>
-                    <span className="nav-item">Volunteers</span>
+                    <Link to="/network" className="nav-item" style={{ textDecoration: 'none' }}>Volunteers</Link>
                     <Link to="/network" className="nav-item" style={{ textDecoration: 'none' }}>Network</Link>
                     <Link to="/messages" className="nav-item" style={{ textDecoration: 'none' }}>Messages</Link>
                     <Link to="/profile" className="nav-item" style={{ textDecoration: 'none' }}>Profile</Link>
