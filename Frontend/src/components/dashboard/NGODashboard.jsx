@@ -95,7 +95,19 @@ const NGODashboard = () => {
             const response = await apiService.findMatches(opportunityId);
             console.log("Match response:", response);
 
-            setCurrentMatches(response.data.matches || []);
+            // Transform backend data to match modal structure
+            const transformedMatches = (response.data.matches || []).map(match => ({
+                volunteerId: match.volunteer._id,
+                name: match.volunteer.username,
+                email: match.volunteer.email,
+                location: match.volunteer.location,
+                skills: match.volunteer.skills,
+                matchScore: match.score,
+                breakdown: match.breakdown
+            }));
+
+            console.log("Transformed matches:", transformedMatches);
+            setCurrentMatches(transformedMatches);
             setCurrentOpportunityTitle(opportunityTitle);
             setMatchModalOpen(true);
         } catch (error) {
