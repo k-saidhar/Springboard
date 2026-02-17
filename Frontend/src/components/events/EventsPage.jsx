@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import apiService from '../../services/apiService';
+import MatchResultsModal from '../dashboard/MatchResultsModal';
 import './EventsPage.css';
 
 const EventsPage = () => {
@@ -13,6 +14,11 @@ const EventsPage = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [locationFilter, setLocationFilter] = useState('');
     const [skillFilter, setSkillFilter] = useState('');
+
+    // Match modal state
+    const [matchModalOpen, setMatchModalOpen] = useState(false);
+    const [currentMatches, setCurrentMatches] = useState([]);
+    const [currentOpportunityTitle, setCurrentOpportunityTitle] = useState('');
 
     useEffect(() => {
         // Get user info from token
@@ -92,6 +98,24 @@ const EventsPage = () => {
                 alert("Failed to delete event");
             }
         }
+    };
+
+    const handleFindMatches = async (opportunityId, opportunityTitle) => {
+        try {
+            const response = await apiService.findMatches(opportunityId);
+            setCurrentMatches(response.data.matches || []);
+            setCurrentOpportunityTitle(opportunityTitle);
+            setMatchModalOpen(true);
+        } catch (error) {
+            console.error("Error finding matches:", error);
+            alert("Failed to find matches. Please try again.");
+        }
+    };
+
+    const handleSendInvitations = (selectedVolunteers) => {
+        console.log("Sending invitations to:", selectedVolunteers);
+        alert(`Invitations sent to ${selectedVolunteers.length} volunteer(s)!`);
+        setMatchModalOpen(false);
     };
 
     return (
@@ -192,8 +216,14 @@ const EventsPage = () => {
                                             Apply Now
                                         </button>
                                     )}
-                                    {userRole === 'ngo' && event.createdBy && event.createdBy._id === userId && (
+                                    {userRole === 'NGO' && event.createdBy && event.createdBy._id === userId && (
                                         <>
+                                            <button
+                                                onClick={() => handleFindMatches(event._id, event.title)}
+                                                className="btn-match"
+                                            >
+                                                🎯 Find Matches
+                                            </button>
                                             <button
                                                 onClick={() => navigate(`/events/edit/${event._id}`)}
                                                 className="btn-edit"
@@ -214,6 +244,17 @@ const EventsPage = () => {
                     </div>
                 )}
             </div>
+
+            {/* Match Results Modal */}
+            {matchModalOpen && (
+                <MatchResultsModal
+                    isOpen={matchModalOpen}
+                    onClose={() => setMatchModalOpen(false)}
+                    matches={currentMatches}
+                    opportunityTitle={currentOpportunityTitle}
+                    onSendInvitations={handleSendInvitations}
+                />
+            )}
         </div>
     );
 };
