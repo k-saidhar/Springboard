@@ -145,14 +145,22 @@ const RegisterForm = () => {
                 {/* Skills Selection - Only for Volunteers */}
                 {formData.role === "volunteer" && (
                     <div className="form-group" ref={skillsRef}>
-                        <div
-                            className="form-input has-icon"
-                            style={{ cursor: "pointer" }}
-                            onClick={() => setShowSkills(!showSkills)}
-                        >
-                            {formData.skills.length > 0
-                                ? formData.skills.join(", ")
-                                : "Select Skills"}
+                        <label style={{ display: 'block', marginBottom: '0.5rem', color: '#666', fontSize: '0.9rem', fontWeight: '500' }}>
+                            Select Your Skills *
+                        </label>
+                        <div className="input-with-icon">
+                            <svg className="input-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                            </svg>
+                            <div
+                                className="form-input has-icon"
+                                style={{ cursor: "pointer", minHeight: '45px', display: 'flex', alignItems: 'center' }}
+                                onClick={() => setShowSkills(!showSkills)}
+                            >
+                                {formData.skills.length > 0
+                                    ? formData.skills.join(", ")
+                                    : "Click to select skills"}
+                            </div>
                         </div>
 
                         {showSkills && (

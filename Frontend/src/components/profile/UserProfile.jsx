@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import apiService from '../../services/apiService';
 import { Link } from 'react-router-dom';
 import '../layout/RegisterPage.css'; // Reuse RegisterPage layout styles
@@ -13,19 +13,50 @@ import BottomRightPlant from '../../assets/Bottom right.svg';
 // Icons
 import { FaUser, FaMapMarkerAlt, FaPhone, FaAddressCard } from 'react-icons/fa';
 
+const volunteerSkills = [
+    "Teaching",
+    "Event Planning",
+    "Community Outreach",
+    "Fundraising",
+    "Healthcare Support",
+    "Environmental Conservation",
+    "Youth Mentoring",
+    "Administrative Support",
+    "Social Media Management",
+    "Technical Support"
+];
+
 const UserProfile = () => {
     const [profile, setProfile] = useState({
         name: '',
         location: '',
         bio: '',
-        contact: '' // This maps to 'mobile' in backend
+        contact: '', // This maps to 'mobile' in backend
+        skills: [],
+        availability: '',
+        role: ''
     });
     const [isEditing, setIsEditing] = useState(false);
     const [message, setMessage] = useState('');
     const [loading, setLoading] = useState(true);
+    const [showSkills, setShowSkills] = useState(false);
+    const skillsRef = useRef(null);
 
     useEffect(() => {
         fetchProfile();
+    }, []);
+
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (skillsRef.current && !skillsRef.current.contains(event.target)) {
+                setShowSkills(false);
+            }
+        }
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
     }, []);
 
     const fetchProfile = async () => {
@@ -36,7 +67,10 @@ const UserProfile = () => {
                 name: data.username || '',
                 location: data.location || '',
                 bio: data.bio || '',
-                contact: data.mobile || ''
+                contact: data.mobile || '',
+                skills: data.skills || [],
+                availability: data.availability || '',
+                role: data.role || ''
             });
         } catch (error) {
             console.error("Error fetching profile", error);
@@ -156,6 +190,69 @@ const UserProfile = () => {
                                     />
                                 </div>
                             </div>
+
+                            {/* Skills Field - Only for Volunteers */}
+                            {profile.role === "volunteer" && (
+                                <div className="form-group" ref={skillsRef}>
+                                    <label style={{ display: 'block', marginBottom: '0.5rem', color: '#666', fontSize: '0.9rem' }}>
+                                        Skills
+                                    </label>
+                                    <div
+                                        className="form-input has-icon"
+                                        style={{ cursor: isEditing ? "pointer" : "default", minHeight: '45px', display: 'flex', alignItems: 'center' }}
+                                        onClick={() => isEditing && setShowSkills(!showSkills)}
+                                    >
+                                        {profile.skills && profile.skills.length > 0
+                                            ? profile.skills.join(", ")
+                                            : "No skills selected"}
+                                    </div>
+
+                                    {showSkills && isEditing && (
+                                        <div className="skills-grid">
+                                            {volunteerSkills.map((skill, index) => (
+                                                <label key={index} className="skill-item">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={profile.skills.includes(skill)}
+                                                        onChange={(e) => {
+                                                            if (e.target.checked) {
+                                                                setProfile({
+                                                                    ...profile,
+                                                                    skills: [...profile.skills, skill]
+                                                                });
+                                                            } else {
+                                                                setProfile({
+                                                                    ...profile,
+                                                                    skills: profile.skills.filter(s => s !== skill)
+                                                                });
+                                                            }
+                                                        }}
+                                                    />
+                                                    {skill}
+                                                </label>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
+                            {/* Availability Field - Only for Volunteers */}
+                            {profile.role === "volunteer" && (
+                                <div className="form-group">
+                                    <label style={{ display: 'block', marginBottom: '0.5rem', color: '#666', fontSize: '0.9rem' }}>
+                                        Availability
+                                    </label>
+                                    <input
+                                        type="date"
+                                        name="availability"
+                                        className="form-input"
+                                        value={profile.availability}
+                                        onChange={handleChange}
+                                        disabled={!isEditing}
+                                        style={{ width: '100%' }}
+                                    />
+                                </div>
+                            )}
 
                             {/* Buttons */}
                             <div style={{ marginTop: '1rem' }}>
