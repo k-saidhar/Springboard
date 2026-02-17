@@ -304,6 +304,7 @@ const NGODashboard = () => {
             {/* Match Results Modal */}
             {matchModalOpen && (
                 <MatchResultsModal
+                    isOpen={matchModalOpen}
                     matches={currentMatches}
                     opportunityTitle={currentOpportunityTitle}
                     onClose={() => setMatchModalOpen(false)}

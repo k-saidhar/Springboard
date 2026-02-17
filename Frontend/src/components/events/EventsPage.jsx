@@ -102,8 +102,23 @@ const EventsPage = () => {
 
     const handleFindMatches = async (opportunityId, opportunityTitle) => {
         try {
+            console.log("Finding matches for opportunity:", opportunityId);
             const response = await apiService.findMatches(opportunityId);
-            setCurrentMatches(response.data.matches || []);
+            console.log("Match response:", response);
+
+            // Transform backend data to match modal structure
+            const transformedMatches = (response.data.matches || []).map(match => ({
+                volunteerId: match.volunteer._id,
+                name: match.volunteer.username,
+                email: match.volunteer.email,
+                location: match.volunteer.location,
+                skills: match.volunteer.skills,
+                matchScore: match.score,
+                breakdown: match.breakdown
+            }));
+
+            console.log("Transformed matches:", transformedMatches);
+            setCurrentMatches(transformedMatches);
             setCurrentOpportunityTitle(opportunityTitle);
             setMatchModalOpen(true);
         } catch (error) {
