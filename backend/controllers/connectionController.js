@@ -57,16 +57,21 @@ exports.sendConnectionRequest = async (req, res) => {
             return res.status(400).json({ message: 'Cannot send connection request to yourself' });
         }
 
-        // Check if connection already exists
+        // Check if an active or pending connection already exists
         const existingConnection = await Connection.findOne({
-            $or: [
-                { senderId, receiverId: toId },
-                { senderId: toId, receiverId: senderId }
-            ]
+        $or: [
+            { senderId, receiverId: toId },
+            { senderId: toId, receiverId: senderId }
+        ]   ,
+        status: { $in: ['pending', 'accepted'] }
         });
 
         if (existingConnection) {
-            return res.status(400).json({ message: 'Connection request already exists' });
+    return res.status(400).json({ 
+        message: existingConnection.status === 'pending' 
+            ? 'Request already pending' 
+            : 'Already connected' 
+    });
         }
 
         const connection = new Connection({
