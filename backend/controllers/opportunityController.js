@@ -315,7 +315,11 @@ const findMatchedVolunteers = async (req, res) => {
       }
 
       // Skills match (50 points)
-      if (volunteer.skills && volunteer.skills.length > 0 && opportunity.skills && opportunity.skills.length > 0) {
+      // If opportunity has no skills specified, give all volunteers full skill score
+      if (!opportunity.skills || opportunity.skills.length === 0) {
+        score += 50;
+        breakdown.skills = 50;
+      } else if (volunteer.skills && volunteer.skills.length > 0) {
         const volunteerSkills = volunteer.skills.map(s => s.toLowerCase());
         const opportunitySkills = Array.isArray(opportunity.skills)
           ? opportunity.skills.map(s => s.toLowerCase())
@@ -340,11 +344,13 @@ const findMatchedVolunteers = async (req, res) => {
           : [volunteer.availability];
 
         const isAvailable = availabilityArray.some(avail => {
-          if (typeof avail === 'string') {
+          if (typeof avail === 'string' && avail.trim() !== '') {
             const availDate = new Date(avail);
-            const timeDiff = Math.abs(availDate - opportunityDate);
-            const daysDiff = timeDiff / (1000 * 60 * 60 * 24);
-            return daysDiff <= 7; // Within a week
+            if (!isNaN(availDate)) {
+              const timeDiff = Math.abs(availDate - opportunityDate);
+              const daysDiff = timeDiff / (1000 * 60 * 60 * 24);
+              return daysDiff <= 30; // Within a month (relaxed from 7 days)
+            }
           }
           return false;
         });
@@ -369,9 +375,8 @@ const findMatchedVolunteers = async (req, res) => {
       };
     });
 
-    // Sort by score (highest first) and filter out zero scores
+    // Sort by score (highest first) - show ALL volunteers, sorted by relevance
     const matches = scoredVolunteers
-      .filter(v => v.score > 0)
       .sort((a, b) => b.score - a.score);
 
     console.log(`Found ${matches.length} matches with score > 0`);

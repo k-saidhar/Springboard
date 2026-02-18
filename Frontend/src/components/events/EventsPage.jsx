@@ -237,7 +237,7 @@ const EventsPage = () => {
                                                 onClick={() => handleFindMatches(event._id, event.title)}
                                                 className="btn-match"
                                             >
-                                                🎯 Find Matches
+                                                Find Matches
                                             </button>
                                             <button
                                                 onClick={() => navigate(`/events/edit/${event._id}`)}

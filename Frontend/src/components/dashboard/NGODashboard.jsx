@@ -220,7 +220,7 @@ const NGODashboard = () => {
                                                 className="btn-primary"
                                                 style={{ background: '#4CAF50', border: 'none', color: 'white', marginRight: '0.5rem' }}
                                             >
-                                                🎯 Find Matches
+                                                Find Matches
                                             </button>
                                             <button
                                                 onClick={() => navigate(`/events/edit/${event._id}`)}
