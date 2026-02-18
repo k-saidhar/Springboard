@@ -289,7 +289,15 @@ const findMatchedVolunteers = async (req, res) => {
       'username email location skills availability'
     );
 
-    console.log(`Found ${volunteers.length} volunteers`);
+    console.log(`\n===== FIND MATCHES DEBUG =====`);
+    console.log(`Opportunity: "${opportunity.title}"`);
+    console.log(`Opportunity location: "${opportunity.location}"`);
+    console.log(`Opportunity skills (raw): ${JSON.stringify(opportunity.skills)}`);
+    console.log(`Total volunteers found: ${volunteers.length}`);
+    volunteers.forEach(v => {
+      console.log(`  Volunteer: ${v.username} | location: "${v.location}" | skills: ${JSON.stringify(v.skills)}`);
+    });
+    console.log(`==============================\n`);
 
     // Scoring algorithm
     const scoredVolunteers = volunteers.map(volunteer => {
@@ -319,6 +327,7 @@ const findMatchedVolunteers = async (req, res) => {
       if (!opportunity.skills || opportunity.skills.length === 0) {
         score += 50;
         breakdown.skills = 50;
+        console.log(`  [${volunteer.username}] No opp skills set → full skill score 50`);
       } else if (volunteer.skills && volunteer.skills.length > 0) {
         const volunteerSkills = volunteer.skills.map(s => s.toLowerCase());
         const opportunitySkills = Array.isArray(opportunity.skills)
@@ -329,11 +338,17 @@ const findMatchedVolunteers = async (req, res) => {
           opportunitySkills.some(oppSkill => oppSkill.includes(skill) || skill.includes(oppSkill))
         );
 
+        console.log(`  [${volunteer.username}] volSkills: ${JSON.stringify(volunteerSkills)}`);
+        console.log(`  [${volunteer.username}] oppSkills: ${JSON.stringify(opportunitySkills)}`);
+        console.log(`  [${volunteer.username}] matched:   ${JSON.stringify(matchingSkills)}`);
+
         if (matchingSkills.length > 0) {
           const skillScore = Math.min(50, (matchingSkills.length / opportunitySkills.length) * 50);
           score += skillScore;
           breakdown.skills = Math.round(skillScore);
         }
+      } else {
+        console.log(`  [${volunteer.username}] has EMPTY skills array in DB → 0 skill score`);
       }
 
       // Availability match (20 points)
