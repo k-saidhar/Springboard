@@ -26,11 +26,11 @@ const generateOTP = () => {
 // REGISTER
 exports.registerUser = async (req, res) => {
   try {
-    const { username, role, mobile, location, email, password } = req.body;
+    const { username, role, mobile, location, email, password, skills, availability } = req.body;
 
     // Check if user exists by email or username
-    const userExists = await User.findOne({ 
-      $or: [{ email }, { username }] 
+    const userExists = await User.findOne({
+      $or: [{ email }, { username }]
     });
     if (userExists) {
       return res.status(400).json({ message: "User already exists" });
@@ -44,7 +44,9 @@ exports.registerUser = async (req, res) => {
       mobile,
       location,
       email,
-      password: hashedPassword
+      password: hashedPassword,
+      skills: role === 'volunteer' ? (skills || []) : [],
+      availability: role === 'volunteer' ? (availability || '') : ''
     });
 
     res.status(201).json({
@@ -61,8 +63,8 @@ exports.loginUser = async (req, res) => {
     const { emailOrUsername, password } = req.body;
 
     // Find user by email or username
-    const user = await User.findOne({ 
-      $or: [{ email: emailOrUsername }, { username: emailOrUsername }] 
+    const user = await User.findOne({
+      $or: [{ email: emailOrUsername }, { username: emailOrUsername }]
     });
     if (!user) {
       return res.status(400).json({ message: "Invalid credentials" });
@@ -116,7 +118,7 @@ exports.forgotPassword = async (req, res) => {
     console.log(`OTP: ${otp}`);
     console.log(`Expires: ${otpExpires}`);
     console.log(`=====================\n`);
-    
+
     // Send OTP to user's email (works with any email provider)
     try {
       const mailOptions = {
@@ -146,12 +148,12 @@ exports.verifyOTP = async (req, res) => {
   try {
     const { email, otp } = req.body;
 
-    const user = await User.findOne({ 
-      email, 
-      otp, 
-      otpExpires: { $gt: Date.now() } 
+    const user = await User.findOne({
+      email,
+      otp,
+      otpExpires: { $gt: Date.now() }
     });
-    
+
     if (!user) {
       return res.status(400).json({ message: "Invalid or expired OTP" });
     }
@@ -167,12 +169,12 @@ exports.resetPassword = async (req, res) => {
   try {
     const { email, otp, newPassword } = req.body;
 
-    const user = await User.findOne({ 
-      email, 
-      otp, 
-      otpExpires: { $gt: Date.now() } 
+    const user = await User.findOne({
+      email,
+      otp,
+      otpExpires: { $gt: Date.now() }
     });
-    
+
     if (!user) {
       return res.status(400).json({ message: "Invalid or expired OTP" });
     }
@@ -194,11 +196,11 @@ exports.searchUsers = async (req, res) => {
   try {
     const keyword = req.query.search
       ? {
-          $or: [
-            { username: { $regex: req.query.search, $options: "i" } },
-            { email: { $regex: req.query.search, $options: "i" } },
-          ],
-        }
+        $or: [
+          { username: { $regex: req.query.search, $options: "i" } },
+          { email: { $regex: req.query.search, $options: "i" } },
+        ],
+      }
       : {};
 
     const users = await User.find(keyword)
