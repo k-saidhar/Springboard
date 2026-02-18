@@ -26,7 +26,7 @@ const generateOTP = () => {
 // REGISTER
 exports.registerUser = async (req, res) => {
   try {
-    const { username, role, mobile, location, email, password } = req.body;
+    const { username, role, mobile, location, skills, email, password } = req.body;
 
     // Check if user exists by email or username
     const userExists = await User.findOne({ 
@@ -43,6 +43,7 @@ exports.registerUser = async (req, res) => {
       role,
       mobile,
       location,
+      skills,
       email,
       password: hashedPassword
     });
