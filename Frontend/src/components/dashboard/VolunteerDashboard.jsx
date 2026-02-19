@@ -21,12 +21,16 @@ const VolunteerDashboard = () => {
                 const response = await apiService.getOpportunities();
                 const allEvents = response.data;
 
-                // Filter events where user has applied
                 const myApps = [];
                 const otherEvents = [];
 
                 allEvents.forEach(event => {
-                    const myApplication = event.applications?.find(app => app.volunteer._id === currentUserId || app.volunteer === currentUserId);
+                    // FIX: Added optional chaining and null checks for volunteer object
+                    const myApplication = event.applications?.find(app => {
+                        if (!app.volunteer) return false;
+                        const volunteerId = app.volunteer._id || app.volunteer;
+                        return volunteerId === currentUserId;
+                    });
 
                     if (myApplication) {
                         myApps.push({
@@ -37,7 +41,6 @@ const VolunteerDashboard = () => {
                             ngoName: event.createdBy?.username || 'Unknown NGO'
                         });
                     } else {
-                        // Only show future events that user hasn't applied to yet (including today)
                         const eventDate = new Date(event.date);
                         const today = new Date();
                         eventDate.setHours(0, 0, 0, 0);
@@ -52,12 +55,11 @@ const VolunteerDashboard = () => {
                 setApplications(myApps);
                 setUpcomingEvents(otherEvents);
 
-                // Update stats
                 const approvedCount = myApps.filter(app => app.status === 'accepted').length;
                 setStats({
                     total: myApps.length,
                     approved: approvedCount,
-                    completed: 0, // Logic for completed can be added later
+                    completed: 0, 
                     impact: '87%'
                 });
 
@@ -72,16 +74,15 @@ const VolunteerDashboard = () => {
         try {
             await apiService.applyForOpportunity(eventId);
             alert("Application submitted successfully!");
-            // Refresh data
             window.location.reload();
         } catch (error) {
             console.error("Error applying:", error);
             alert(error.response?.data?.message || "Failed to apply");
         }
     };
+
     return (
         <div className="dashboard-container">
-            {/* Navbar */}
             <nav className="dashboard-nav">
                 <div className="nav-brand">
                     <span role="img" aria-label="logo">♻️</span> WasteZero
@@ -103,7 +104,6 @@ const VolunteerDashboard = () => {
             </nav>
 
             <div className="dashboard-content">
-                {/* Welcome Section */}
                 <div className="welcome-section">
                     <div className="welcome-text">
                         <h1>Welcome, Volunteer 👋</h1>
@@ -114,7 +114,6 @@ const VolunteerDashboard = () => {
                     </div>
                 </div>
 
-                {/* Stats Grid */}
                 <div className="stats-grid">
                     <div className="stat-card">
                         <div className="stat-icon">📋</div>
@@ -147,7 +146,6 @@ const VolunteerDashboard = () => {
                 </div>
 
                 <div className="content-split">
-                    {/* Left Column */}
                     <div className="left-column">
                         <h3 className="section-title">Upcoming Events</h3>
                         <div className="events-list">
@@ -212,7 +210,6 @@ const VolunteerDashboard = () => {
                         </div>
                     </div>
 
-                    {/* Right Column */}
                     <div className="right-column">
                         <h3 className="section-title">Analytics / Impact</h3>
                         <div className="analytics-panel">
@@ -232,5 +229,4 @@ const VolunteerDashboard = () => {
         </div>
     );
 };
-
 export default VolunteerDashboard;

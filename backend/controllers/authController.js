@@ -43,6 +43,7 @@ exports.registerUser = async (req, res) => {
       role,
       mobile,
       location,
+      skills,
       email,
       password: hashedPassword,
       skills: role === 'volunteer' ? (skills || []) : [],
