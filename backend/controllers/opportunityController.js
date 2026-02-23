@@ -402,6 +402,64 @@ const findMatchedVolunteers = async (req, res) => {
   }
 };
 
+// GET /api/opportunities/co-partners
+// Returns all unique users who share an event with the logged-in user
+const getCoPartners = async (req, res) => {
+  try {
+    const myId = req.user.id;
+
+    // Find events where I am the creator (NGO) OR an accepted volunteer
+    const myEvents = await Opportunity.find({
+      $or: [
+        { createdBy: myId },
+        { applications: { $elemMatch: { volunteer: myId, status: 'accepted' } } }
+      ]
+    })
+      .populate('createdBy', 'username role email')
+      .populate('applications.volunteer', 'username role email');
+
+    // Build a unique map of co-partners (userId -> { user, events[] })
+    const partnerMap = new Map();
+
+    for (const event of myEvents) {
+      const eventLabel = event.title;
+      const myIdStr = String(myId);
+
+      // Helper to add a partner to the map
+      const addPartner = (user) => {
+        if (!user || String(user._id) === myIdStr) return;
+        const uid = String(user._id);
+        if (!partnerMap.has(uid)) {
+          partnerMap.set(uid, {
+            _id: user._id,
+            username: user.username,
+            role: user.role,
+            events: []
+          });
+        }
+        const existing = partnerMap.get(uid);
+        if (!existing.events.includes(eventLabel)) {
+          existing.events.push(eventLabel);
+        }
+      };
+
+      // Add the NGO creator
+      addPartner(event.createdBy);
+
+      // Add all ACCEPTED volunteers
+      for (const app of event.applications) {
+        if (app.status === 'accepted') {
+          addPartner(app.volunteer);
+        }
+      }
+    }
+
+    res.json(Array.from(partnerMap.values()));
+  } catch (err) {
+    res.status(500).json({ message: 'Error fetching co-partners', error: err.message });
+  }
+};
+
 module.exports = {
   createOpportunity,
   getOpportunities,
@@ -410,5 +468,6 @@ module.exports = {
   deleteOpportunity,
   applyForOpportunity,
   updateApplicationStatus,
-  findMatchedVolunteers
+  findMatchedVolunteers,
+  getCoPartners
 };

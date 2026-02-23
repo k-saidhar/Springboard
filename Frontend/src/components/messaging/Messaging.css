@@ -291,3 +291,154 @@
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 }
 
+
+/*  Co-Partners Panel  */
+.co-partners-panel {
+    width: 280px;
+    min-width: 240px;
+    background-color: #fafbff;
+    border-left: 1px solid #e8eaf6;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.co-partners-header {
+    padding: 18px 16px 14px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #3c3f8f;
+    border-bottom: 1px solid #e8eaf6;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, #eef2ff 0%, #fafbff 100%);
+    letter-spacing: 0.02em;
+}
+
+.co-partners-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 0;
+}
+
+.co-partner-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 14px;
+    cursor: pointer;
+    transition: background 0.18s;
+    border-bottom: 1px solid #f0f0f8;
+}
+
+.co-partner-card:hover {
+    background-color: #eef2ff;
+}
+
+.partner-avatar {
+    position: relative;
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1rem;
+}
+
+.online-dot {
+    position: absolute;
+    bottom: 1px;
+    right: 1px;
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    border: 2px solid #fafbff;
+    transition: background-color 0.3s;
+}
+
+.partner-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.partner-name {
+    font-weight: 600;
+    color: #222;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.partner-role {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    margin: 2px 0 5px;
+}
+
+.partner-events {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.event-tag {
+    background: #e0e7ff;
+    color: #4338ca;
+    font-size: 0.68rem;
+    padding: 2px 7px;
+    border-radius: 10px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 140px;
+}
+
+.chat-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.1rem;
+    padding: 4px;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+    align-self: center;
+}
+.co-partner-card:hover .chat-btn { opacity: 1; }
+
+.co-partners-empty {
+    padding: 30px 20px;
+    text-align: center;
+    color: #888;
+    font-size: 0.88rem;
+}
+
+.empty-icon-sm { font-size: 2.5rem; margin-bottom: 10px; }
+.co-partners-empty p { margin: 4px 0; }
+.sub-text { font-size: 0.8rem; color: #aaa; line-height: 1.4; margin-top: 8px !important; }
+
+.co-partners-loading {
+    padding: 20px;
+    text-align: center;
+    color: #aaa;
+    font-size: 0.88rem;
+}
+
+.nav-info { display: flex; align-items: center; }
+.nav-badge {
+    background: #eef2ff;
+    color: #4338ca;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border: 1px solid #c7d2fe;
+}

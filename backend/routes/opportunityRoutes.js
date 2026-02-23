@@ -9,7 +9,8 @@ const {
   deleteOpportunity,
   applyForOpportunity,
   updateApplicationStatus,
-  findMatchedVolunteers
+  findMatchedVolunteers,
+  getCoPartners
 } = require("../controllers/opportunityController");
 
 // @route   POST /api/opportunities
@@ -21,6 +22,12 @@ router.post("/", protect, createOpportunity);
 // @desc    Get all opportunities
 // @access  Public
 router.get("/", getOpportunities);
+
+// @route   GET /api/opportunities/co-partners
+// @desc    Get users who share an event with me (accepted volunteers + NGO)
+// @access  Private
+// IMPORTANT: Must be defined BEFORE /:id to avoid wildcard conflict
+router.get("/co-partners", protect, getCoPartners);
 
 // @route   GET /api/opportunities/:id
 // @desc    Get opportunity by ID
