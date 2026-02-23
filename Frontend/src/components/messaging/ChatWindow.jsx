@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './Messaging.css';
 
-const ChatWindow = ({ chat, messages, onSendMessage, currentUserId }) => {
+const ChatWindow = ({ chat, messages, onSendMessage, currentUserId, onlineUsers = new Set() }) => {
     const [newMessage, setNewMessage] = useState('');
     const messagesEndRef = useRef(null);
 
@@ -39,7 +39,12 @@ const ChatWindow = ({ chat, messages, onSendMessage, currentUserId }) => {
                 </div>
                 <div className="chat-info">
                     <div className="chat-name">{chat.name}</div>
-                    <div className="chat-status" style={{ fontSize: '0.8rem', color: '#4caf50' }}>• Online</div>
+                    <div className="chat-status" style={{
+                        fontSize: '0.8rem',
+                        color: onlineUsers.has(String(chat.receiverId)) ? '#4caf50' : '#999'
+                    }}>
+                        {onlineUsers.has(String(chat.receiverId)) ? '• Online' : '• Offline'}
+                    </div>
                 </div>
             </div>
 
@@ -52,13 +57,13 @@ const ChatWindow = ({ chat, messages, onSendMessage, currentUserId }) => {
                     messages.map((msg) => {
                         const messageKey = msg._id || `${msg.senderId}-${msg.timestamp}-${msg.text}`;
                         const isSent = String(msg.senderId) === String(currentUserId);
-                        
+
                         return (
                             <div key={messageKey} className={`message ${isSent ? 'sent' : 'received'}`}>
                                 <div className="message-content">{msg.text}</div>
                                 <div className="message-time">
-                                    {msg.timestamp ? 
-                                        new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) 
+                                    {msg.timestamp ?
+                                        new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
                                         : ''}
                                 </div>
                             </div>

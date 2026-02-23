@@ -27,19 +27,6 @@ socketHandler(io);
 // Make io accessible in routes
 app.set('io', io);
 
-// Socket.io connection handler
-io.on('connection', (socket) => {
-  console.log('New client connected:', socket.id);
-
-  socket.on('join', (userId) => {
-    socket.join(userId);
-    console.log(`User ${userId} joined their room`);
-  });
-
-  socket.on('disconnect', () => {
-    console.log('Client disconnected');
-  });
-});
 
 app.use(cors());
 app.use(express.json());

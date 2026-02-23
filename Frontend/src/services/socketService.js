@@ -36,18 +36,18 @@ class SocketService {
         }
     }
 
-    
-    joinRoom(chatId) { 
-    if (this.socket) {
-        this.socket.emit('join_chat', chatId);
-        console.log(`Joining chat room: ${chatId}`);
-    }
+
+    joinRoom(chatId) {
+        if (this.socket) {
+            this.socket.emit('join_chat', chatId);
+            console.log(`Joining chat room: ${chatId}`);
+        }
     }
 
     joinNotificationRoom(userId) {
-    if (this.socket) {
-        this.socket.emit('join', userId); 
-    }
+        if (this.socket) {
+            this.socket.emit('join', userId);
+        }
     }
 
     leaveRoom(room) {
@@ -77,6 +77,32 @@ class SocketService {
     offReceiveMessage() {
         if (this.socket) {
             this.socket.off('receive_message');
+        }
+    }
+
+    onOnlineUsers(callback) {
+        if (this.socket) {
+            this.socket.on('online_users', callback);
+        }
+    }
+
+    onUserOnline(callback) {
+        if (this.socket) {
+            this.socket.on('user_online', callback);
+        }
+    }
+
+    onUserOffline(callback) {
+        if (this.socket) {
+            this.socket.on('user_offline', callback);
+        }
+    }
+
+    offOnlineStatus() {
+        if (this.socket) {
+            this.socket.off('online_users');
+            this.socket.off('user_online');
+            this.socket.off('user_offline');
         }
     }
 }

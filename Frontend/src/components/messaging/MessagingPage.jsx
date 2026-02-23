@@ -8,68 +8,85 @@ import './Messaging.css';
 
 const MessagingPage = () => {
     const [currentUserId, setCurrentUserId] = useState('');
+    const [onlineUsers, setOnlineUsers] = useState(new Set());
     const [chats, setChats] = useState([]);
     const [activeChat, setActiveChat] = useState(null);
     const [messages, setMessages] = useState({});
     const [searchTerm, setSearchTerm] = useState('');
     const [searchResults, setSearchResults] = useState([]);
 
-useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-        try {
-            const decoded = JSON.parse(atob(token.split('.')[1]));
-            setCurrentUserId(decoded.id);
-            socketService.connect(token);
-            fetchInbox(token);
-        } catch (e) {
-            console.error("Token decode error", e);
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            try {
+                const decoded = JSON.parse(atob(token.split('.')[1]));
+                setCurrentUserId(decoded.id);
+                socketService.connect(token);
+                fetchInbox(token);
+
+                // Listen for online presence events
+                socketService.onOnlineUsers((userIds) => {
+                    setOnlineUsers(new Set(userIds.map(String)));
+                });
+                socketService.onUserOnline((uid) => {
+                    setOnlineUsers(prev => new Set([...prev, String(uid)]));
+                });
+                socketService.onUserOffline((uid) => {
+                    setOnlineUsers(prev => {
+                        const next = new Set(prev);
+                        next.delete(String(uid));
+                        return next;
+                    });
+                });
+            } catch (e) {
+                console.error("Token decode error", e);
+            }
         }
-    }
-}, []);
+        return () => socketService.offOnlineStatus();
+    }, []);
 
-useEffect(() => {
-    if (!currentUserId) return;
+    useEffect(() => {
+        if (!currentUserId) return;
 
-    socketService.offReceiveMessage();
+        socketService.offReceiveMessage();
 
-    socketService.onReceiveMessage((msg) => {
-        const incomingSenderId = msg.from?._id || msg.from;
-        const myId = String(currentUserId);
+        socketService.onReceiveMessage((msg) => {
+            const incomingSenderId = msg.from?._id || msg.from;
+            const myId = String(currentUserId);
 
-        console.log("Debug IDs -> Incoming:", incomingSenderId, "Me:", myId);
+            console.log("Debug IDs -> Incoming:", incomingSenderId, "Me:", myId);
 
-        if (String(incomingSenderId) === myId) {
-            console.log("Ignoring my own message from socket");
-            return; 
-        }
+            if (String(incomingSenderId) === myId) {
+                console.log("Ignoring my own message from socket");
+                return;
+            }
 
-        setMessages(prev => {
-            const chatId = msg.chatId;
-            const currentChatHistory = prev[chatId] || [];
+            setMessages(prev => {
+                const chatId = msg.chatId;
+                const currentChatHistory = prev[chatId] || [];
 
-            const isDuplicate = currentChatHistory.some(m => 
-                m.text === msg.text && 
-                new Date(m.timestamp).getTime() === new Date(msg.time).getTime()
-            );
+                const isDuplicate = currentChatHistory.some(m =>
+                    m.text === msg.text &&
+                    new Date(m.timestamp).getTime() === new Date(msg.time).getTime()
+                );
 
-            if (isDuplicate) return prev;
+                if (isDuplicate) return prev;
 
-            const newMsg = {
-                senderId: incomingSenderId,
-                text: msg.text,
-                timestamp: msg.time || new Date()
-            };
+                const newMsg = {
+                    senderId: incomingSenderId,
+                    text: msg.text,
+                    timestamp: msg.time || new Date()
+                };
 
-            return {
-                ...prev,
-                [chatId]: [...currentChatHistory, newMsg]
-            };
+                return {
+                    ...prev,
+                    [chatId]: [...currentChatHistory, newMsg]
+                };
+            });
         });
-    });
 
-    return () => socketService.offReceiveMessage();
-}, [currentUserId]);
+        return () => socketService.offReceiveMessage();
+    }, [currentUserId]);
 
 
     const fetchInbox = async (token) => {
@@ -79,7 +96,7 @@ useEffect(() => {
             const res = await axios.get('http://localhost:5000/api/chat', {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            
+
             const formattedChats = res.data.map(chat => {
                 const otherUser = chat.participants.find(p => String(p._id) !== String(myId));
                 return {
@@ -103,7 +120,7 @@ useEffect(() => {
             const res = await axios.get(`http://localhost:5000/api/chat/${chat.id}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            
+
             const history = res.data.map(m => ({
                 senderId: m.from._id || m.from,
                 text: m.text,
@@ -118,10 +135,10 @@ useEffect(() => {
         if (!activeChat || !text.trim()) return;
 
         const token = localStorage.getItem('token');
-        const messageData = { 
-            chatId: activeChat.id, 
-            participantId: activeChat.receiverId, 
-            text: text 
+        const messageData = {
+            chatId: activeChat.id,
+            participantId: activeChat.receiverId,
+            text: text
         };
 
         try {
@@ -129,7 +146,7 @@ useEffect(() => {
             await axios.post('http://localhost:5000/api/chat/send', messageData, {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            
+
             const myNewMsg = { senderId: currentUserId, text: text, timestamp: new Date() };
             setMessages(prev => ({
                 ...prev,
@@ -156,14 +173,14 @@ useEffect(() => {
     const startChat = async (user) => {
         try {
             const token = localStorage.getItem('token');
-            const res = await axios.post('http://localhost:5000/api/chat', 
-                { participantId: user._id }, 
+            const res = await axios.post('http://localhost:5000/api/chat',
+                { participantId: user._id },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
-            
+
             setSearchTerm('');
             setSearchResults([]);
-            await fetchInbox(token); 
+            await fetchInbox(token);
             handleSelectChat({ id: res.data._id, name: user.username, receiverId: user._id });
         } catch (err) { console.error(err); }
     };
@@ -176,12 +193,12 @@ useEffect(() => {
                     <Link to="/dashboard" className="back-link">← Back to Dashboard</Link>
                     <h2 className="page-title">Messaging</h2>
                 </div>
-                
+
                 <div className="search-container">
-                    <input 
-                        type="text" 
+                    <input
+                        type="text"
                         className="search-input"
-                        placeholder="Search users to start chat..." 
+                        placeholder="Search users to start chat..."
                         value={searchTerm}
                         onChange={handleSearch}
                     />
@@ -203,16 +220,17 @@ useEffect(() => {
 
             {/* Main Chat Layout */}
             <div className="messaging-main-layout">
-                <ChatList 
-                    chats={chats} 
-                    activeChat={activeChat} 
-                    onSelectChat={handleSelectChat} 
+                <ChatList
+                    chats={chats}
+                    activeChat={activeChat}
+                    onSelectChat={handleSelectChat}
                 />
-                <ChatWindow 
-                    chat={activeChat} 
-                    messages={activeChat ? (messages[activeChat.id] || []) : []} 
-                    onSendMessage={handleSendMessage} 
-                    currentUserId={currentUserId} 
+                <ChatWindow
+                    chat={activeChat}
+                    messages={activeChat ? (messages[activeChat.id] || []) : []}
+                    onSendMessage={handleSendMessage}
+                    currentUserId={currentUserId}
+                    onlineUsers={onlineUsers}
                 />
             </div>
         </div>
