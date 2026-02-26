@@ -1,0 +1,144 @@
+/* UnauthorizedPage.css */
+.unauth-wrapper {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--bg-color);
+    /* mint green — same as login page */
+    padding: 1rem;
+}
+
+.unauth-card {
+    background: #FFFFFF;
+    border-radius: 24px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.10);
+    padding: 3.5rem 3rem;
+    max-width: 420px;
+    width: 100%;
+    text-align: center;
+    animation: slideUp 0.4s ease;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Brand */
+.unauth-brand {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 2.5rem;
+}
+
+.unauth-brand .logo-icon {
+    width: 40px;
+    height: 40px;
+}
+
+.unauth-brand .brand-text {
+    font-weight: 700;
+    font-size: 1.8rem;
+    color: #000;
+    margin: 0;
+    letter-spacing: -0.5px;
+}
+
+/* Lock icon circle */
+.unauth-icon-circle {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: #FFF3CD;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    font-size: 2rem;
+}
+
+/* Headings */
+.unauth-card h1 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin: 0 0 0.75rem;
+}
+
+.unauth-card p {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin: 0 0 2rem;
+}
+
+/* Buttons */
+.unauth-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.btn-go-login {
+    width: 100%;
+    padding: 0.875rem;
+    background-color: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+.btn-go-login:hover {
+    background-color: var(--primary-hover);
+    transform: translateY(-1px);
+}
+
+.btn-go-login:active {
+    transform: translateY(0);
+}
+
+.unauth-divider {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.btn-go-register {
+    background: none;
+    border: none;
+    color: var(--brand-green);
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: underline;
+    padding: 0;
+}
+
+.btn-go-register:hover {
+    opacity: 0.8;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .unauth-card {
+        padding: 2.5rem 1.5rem;
+        border-radius: 16px;
+    }
+
+    .unauth-brand .brand-text {
+        font-size: 1.5rem;
+    }
+}

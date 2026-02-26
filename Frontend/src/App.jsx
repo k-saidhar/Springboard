@@ -20,6 +20,8 @@ import ApplicationsPage from './components/applications/ApplicationsPage';
 import OpportunityForm from './components/opportunities/OpportunityForm';
 
 import { NotificationProvider } from './context/NotificationContext';
+import ProtectedRoute from './components/auth/ProtectedRoute';
+import UnauthorizedPage from './components/layout/UnauthorizedPage';
 
 function App() {
   return (
@@ -45,18 +47,19 @@ function App() {
             {/* Register Route */}
             <Route path="/register" element={<RegisterPage />} />
 
-            {/* Dashboard Route */}
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/contact" element={<ContactPage />} />
+            {/* Unauthorized Page (public) */}
+            <Route path="/unauthorized" element={<UnauthorizedPage />} />
 
-            {/* Feature Routes */}
-            <Route path="/profile" element={<UserProfile />} />
-            <Route path="/network" element={<NetworkPage />} />
-            <Route path="/events" element={<EventsPage />} />
-            <Route path="/applications" element={<ApplicationsPage />} />
-            <Route path="/messages" element={<MessagingPage />} />
-            <Route path="/events/create" element={<OpportunityForm />} />
-            <Route path="/events/edit/:id" element={<OpportunityForm />} />
+            {/* Protected Routes */}
+            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            <Route path="/contact" element={<ProtectedRoute><ContactPage /></ProtectedRoute>} />
+            <Route path="/profile" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
+            <Route path="/network" element={<ProtectedRoute><NetworkPage /></ProtectedRoute>} />
+            <Route path="/events" element={<ProtectedRoute><EventsPage /></ProtectedRoute>} />
+            <Route path="/applications" element={<ProtectedRoute><ApplicationsPage /></ProtectedRoute>} />
+            <Route path="/messages" element={<ProtectedRoute><MessagingPage /></ProtectedRoute>} />
+            <Route path="/events/create" element={<ProtectedRoute><OpportunityForm /></ProtectedRoute>} />
+            <Route path="/events/edit/:id" element={<ProtectedRoute><OpportunityForm /></ProtectedRoute>} />
           </Routes>
         </div>
       </NotificationProvider>
